@@ -302,7 +302,7 @@
 			})
 
 			// Hook global events
-			$('body').on(eventsGlobal.join(' '), function (ev) {
+			$(window).on(eventsGlobal.join(' '), function (ev) {
 				// Do not make any computations if it is has no effect on Navigator
 				if (!that.$overlay.inMovement)
 					return;
