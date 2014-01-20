@@ -504,44 +504,34 @@
 		}
 
 	, _updateThumbnailImage: function (force_refresh) {
-			var that = this
-				, timeout = 0 // will remain 0 if force_refresh is true
+		var that = this;
 
-			if( isNaN(this.options.thumbnailEventFramerate) || this.options.thumbnailEventFramerate < 0 ){
-				this.options.thumbnailEventFramerate = 30;
-			}
-
-			if( this._thumbnailUpdateInterval !== undefined ){
-				return;
-			}
-
-			this._thumbnailUpdateInterval = setInterval(function(){
-				var canvas = that.$thumbnail[0];
-				var cxt = canvas.getContext('2d');
-
-				cxt.setTransform(1, 0, 0, 1, 0, 0);
-				cxt.clearRect(0, 0, canvas.width, canvas.height);
-
-				// Copy scaled thumbnail to buffer
-				that.cy.renderTo(cxt, that.$thumbnail.zoom, that.$thumbnail.pan);
-			}, Math.round(1000/this.options.thumbnailEventFramerate));
-
+		if( this._thumbnailUpdating ){
 			return;
-
-			// Set thumbnail update frame rate
-			if (!force_refresh && this.options.thumbnailEventFramerate > 0) {
-				timeout = ~~(1000 / this.options.thumbnailEventFramerate)
-			}
-
-			if (this._thumbnailUpdateTimeout === undefined || this._thumbnailUpdateTimeout === null) {
-				this._thumbnailUpdateTimeout = setTimeout(function(){
-					
-
-					// Reset flag
-					that._thumbnailUpdateTimeout = null
-				}, timeout)
-			}
 		}
+
+		this._thumbnailUpdating = true;
+
+		var requestAnimationFrame = ( window.requestAnimationFrame || window.mozRequestAnimationFrame ||  
+			window.webkitRequestAnimationFrame || window.msRequestAnimationFrame );
+
+		function update(){
+			var canvas = that.$thumbnail[0];
+			var cxt = canvas.getContext('2d');
+
+			cxt.setTransform(1, 0, 0, 1, 0, 0);
+			cxt.clearRect(0, 0, canvas.width, canvas.height);
+
+			// Copy scaled thumbnail to buffer
+			that.cy.renderTo(cxt, that.$thumbnail.zoom, that.$thumbnail.pan);
+
+			requestAnimationFrame( update );
+		};
+
+		update();
+
+		return;
+	}
 
 	/****************************
 		Navigator view moving
