@@ -4,9 +4,8 @@
   Modifications tracked on Github
 */
 
-!(function($){
+(function($){
 
-	"use strict";
 
 	var Navigator = function ( element, options ) {
 		this._init(element, options)
@@ -25,20 +24,24 @@
 
 			this.$element = $(element)
 			this.options = $.extend(true, {}, $.fn.cytoscapeNavigator.defaults, options)
-			this.cy = this.$element.cytoscape('get')
+
+			that.$element.cytoscape(function(){
+				that.cy = that.$element.cytoscape('get')
+
+				// Cache bounding box
+				that.boundingBox = that.cy.elements().boundingBox()
+
+				// Init components
+				that._initPanel()
+				that._initThumbnail()
+				that._initView()
+				that._initOverlay()
+			});
+			
 
 			// Cache sizes
 			this.width = this.$element.width()
 			this.height = this.$element.height()
-
-			// Cache bounding box
-			this.boundingBox = this.cy.elements().boundingBox()
-
-			// Init components
-			this._initPanel()
-			this._initThumbnail()
-			this._initView()
-			this._initOverlay()
 
 			// Hook element resize
 			this.$element.on('resize', $.proxy(this.resize, this))
@@ -78,7 +81,7 @@
 				}
 			} else {
 				this.$panel = $('<div class="cytoscape-navigator"/>')
-				this.$element.append(this.$panel)
+				$('body').append(this.$panel)
 			}
 
 			this._setupPanel()
@@ -88,8 +91,8 @@
 			var options = this.options
 
 			// Cache sizes
-			this.$panel.w = this.$panel.width()
-			this.$panel.h = this.$panel.height()
+			this.panelWidth = this.$panel.width()
+			this.panelHeight = this.$panel.height()
 		}
 
 		/*
@@ -109,6 +112,8 @@
 			this._setupThumbnailSizes()
 			this._setupThumbnail()
 
+			return;
+
 			// Repopulate thumbnail after graph render
 			this.cy.on('initrender', $.proxy(this._checkThumbnailSizesAndUpdate, this))
 
@@ -121,10 +126,12 @@
 		}
 
 	, _setupThumbnail: function () {
+		console.log('tn setup')
 			// Setup Canvas
 			if( !this._thumbnailSetup ){ // only need to setup once
-				this.$thumbnail.attr('width', this.$panel.w)
-				this.$thumbnail.attr('height', this.$panel.h)
+				console.log('setup')
+				this.$thumbnail.attr('width', this.panelWidth)
+				this.$thumbnail.attr('height', this.panelHeight)
 				this._thumbnailSetup = true;
 			}
 
@@ -135,12 +142,12 @@
 			// Update bounding box cache
 			this.boundingBox = this.cy.elements().boundingBox()
 
-			this.$thumbnail.zoom = Math.min(this.$panel.h / this.boundingBox.h, this.$panel.w / this.boundingBox.w)
+			this.thumbnailZoom = Math.min(this.panelHeight / this.boundingBox.h, this.panelWidth / this.boundingBox.w)
 
 			// Used on thumbnail generation
-			this.$thumbnail.pan = {
-				x: (this.$panel.w - this.$thumbnail.zoom * (this.boundingBox.x1 + this.boundingBox.x2))/2
-			, y: (this.$panel.h - this.$thumbnail.zoom * (this.boundingBox.y1 + this.boundingBox.y2))/2
+			this.thumbnailPan = {
+				x: (this.panelWidth - this.thumbnailZoom * (this.boundingBox.x1 + this.boundingBox.x2))/2
+			, y: (this.panelHeight - this.thumbnailZoom * (this.boundingBox.y1 + this.boundingBox.y2))/2
 			}
 		}
 
@@ -148,13 +155,13 @@
 		// Otherwise just update the thumbnail
 	, _checkThumbnailSizesAndUpdate: function () {
 			// Cache previous values
-			var _zoom = this.$thumbnail.zoom
-			  , _pan_x = this.$thumbnail.pan.x
-			  , _pan_y = this.$thumbnail.pan.y
+			var _zoom = this.thumbnailZoom
+			  , _pan_x = this.thumbnailPan.x
+			  , _pan_y = this.thumbnailPan.y
 
 			this._setupThumbnailSizes()
 
-			if (_zoom != this.$thumbnail.zoom || _pan_x != this.$thumbnail.pan.x || _pan_y != this.$thumbnail.pan.y) {
+			if (_zoom != this.thumbnailZoom || _pan_x != this.thumbnailPan.x || _pan_y != this.thumbnailPan.y) {
 				this._setupThumbnail()
 				this._setupView()
 			} else {
@@ -179,14 +186,14 @@
 			this.$panel.append(this.$view)
 
 			// Compute borders
-			this.$view.borderTop = parseInt(this.$view.css('border-top-width'), 10)
-			this.$view.borderRight = parseInt(this.$view.css('border-right-width'), 10)
-			this.$view.borderBottom = parseInt(this.$view.css('border-bottom-width'), 10)
-			this.$view.borderLeft = parseInt(this.$view.css('border-left-width'), 10)
+			this.viewBorderTop = parseInt(this.$view.css('border-top-width'), 10)
+			this.viewBorderRight = parseInt(this.$view.css('border-right-width'), 10)
+			this.viewBorderBottom = parseInt(this.$view.css('border-bottom-width'), 10)
+			this.viewBorderLeft = parseInt(this.$view.css('border-left-width'), 10)
 
 			// Abstract borders
-			this.$view.borderHorizontal = this.$view.borderLeft + this.$view.borderRight
-			this.$view.borderVertical = this.$view.borderTop + this.$view.borderBottom
+			this.viewBorderHorizontal = this.viewBorderLeft + this.viewBorderRight
+			this.viewBorderVertical = this.viewBorderTop + this.viewBorderBottom
 
 			this._setupView()
 
@@ -195,27 +202,27 @@
 		}
 
 	, _setupView: function () {
-			if (this.$view.locked)
+			if (this.viewLocked)
 				return
 
 			var cyZoom = this.cy.zoom()
 			  , cyPan = this.cy.pan()
 
 			// Horizontal computation
-			this.$view.w = this.width / cyZoom * this.$thumbnail.zoom
-			this.$view.x = -cyPan.x * this.$view.w / this.width + this.$thumbnail.pan.x - this.$view.borderLeft
+			this.viewW = this.width / cyZoom * this.thumbnailZoom
+			this.viewX = -cyPan.x * this.viewW / this.width + this.thumbnailPan.x - this.viewBorderLeft
 
 			// Vertical computation
-			this.$view.h = this.height / cyZoom * this.$thumbnail.zoom
-			this.$view.y = -cyPan.y * this.$view.h / this.height + this.$thumbnail.pan.y - this.$view.borderTop
+			this.viewH = this.height / cyZoom * this.thumbnailZoom
+			this.viewY = -cyPan.y * this.viewH / this.height + this.thumbnailPan.y - this.viewBorderTop
 
 			// CSS view
 			this.$view
-				.width(this.$view.w)
-				.height(this.$view.h)
+				.width(this.viewW)
+				.height(this.viewH)
 				.css({
-				  left: this.$view.x
-				, top: this.$view.y
+				  left: this.viewX
+				, top: this.viewY
 				})
 		}
 
@@ -235,7 +242,8 @@
 			this.$panel.append(this.$overlay)
 
 			// Init some attributes
-			this.$overlay.hookPoint = {x: 0, y: 0}
+			this.overlayHookPointX = 0;
+			this.overlayHookPointY = 0;
 
 			// Listen for events
 			this._initEventsHandling()
@@ -279,8 +287,8 @@
 				// Touch events
 				if (ev.type == 'touchstart') {
 					// Will count as middle of View
-					ev.offsetX = that.$view.x + that.$view.w / 2
-					ev.offsetY = that.$view.y + that.$view.h / 2
+					ev.offsetX = that.viewX + that.viewW / 2
+					ev.offsetY = that.viewY + that.viewH / 2
 				}
 
 				// Normalize offset for browsers which do not provide that value
@@ -304,14 +312,14 @@
 			// Hook global events
 			$(window).on(eventsGlobal.join(' '), function (ev) {
 				// Do not make any computations if it is has no effect on Navigator
-				if (!that.$overlay.inMovement)
+				if (!that.overlayInMovement)
 					return;
 
 				// Touch events
 				if (ev.type == 'touchend') {
 					// Will count as middle of View
-					ev.offsetX = that.$view.x + that.$view.w / 2
-					ev.offsetY = that.$view.y + that.$view.h / 2
+					ev.offsetX = that.viewX + that.viewW / 2
+					ev.offsetY = that.viewY + that.viewH / 2
 				} else if (ev.type == 'touchmove') {
 					// Hack - we take in account only first touch
 					ev.pageX = ev.originalEvent.touches[0].pageX
@@ -350,53 +358,53 @@
 			var now = new Date().getTime()
 
 			// Check if it was double click
-			if (this.$overlay.lastMoveStartTime
-				&& this.$overlay.lastMoveStartTime + this.options.dblClickDelay > now) {
+			if (this.overlayLastMoveStartTime
+				&& this.overlayLastMoveStartTime + this.options.dblClickDelay > now) {
 				// Reset lastMoveStartTime
-				this.$overlay.lastMoveStartTime = 0
+				this.overlayLastMoveStartTime = 0
 				// Enable View in order to move it to the center
-				this.$overlay.inMovement = true
+				this.overlayInMovement = true
 
 				// Set hook point as View center
-				this.$overlay.hookPoint.x = this.$view.w / 2
-				this.$overlay.hookPoint.y = this.$view.h / 2
+				this.overlayHookPointX = this.viewW / 2
+				this.overlayHookPointY = this.viewH / 2
 
 				// Move View to start point
 				if (this.options.viewLiveFramerate !== false) {
 					this._eventMove({
-					  offsetX: this.$panel.w / 2
-					, offsetY: this.$panel.h / 2
+					  offsetX: this.panelWidth / 2
+					, offsetY: this.panelHeight / 2
 					})
 				} else {
 					this._eventMoveEnd({
-					  offsetX: this.$panel.w / 2
-					, offsetY: this.$panel.h / 2
+					  offsetX: this.panelWidth / 2
+					, offsetY: this.panelHeight / 2
 					})
 				}
 
 				// View should be inactive as we don't want to move it right after double click
-				this.$overlay.inMovement = false
+				this.overlayInMovement = false
 			}
 			// This is a single click
 			// Take care as single click happens before double click 2 times
 			else {
-				this.$overlay.lastMoveStartTime = now
-				this.$overlay.inMovement = true
+				this.overlayLastMoveStartTime = now
+				this.overlayInMovement = true
 				// Lock view moving caused by cy events
-				this.$view.locked = true
+				this.viewLocked = true
 
 				// if event started in View
-				if (ev.offsetX >= this.$view.x && ev.offsetX <= this.$view.x + this.$view.w
-					&& ev.offsetY >= this.$view.y && ev.offsetY <= this.$view.y + this.$view.h
+				if (ev.offsetX >= this.viewX && ev.offsetX <= this.viewX + this.viewW
+					&& ev.offsetY >= this.viewY && ev.offsetY <= this.viewY + this.viewH
 				) {
-					this.$overlay.hookPoint.x = ev.offsetX - this.$view.x
-					this.$overlay.hookPoint.y = ev.offsetY - this.$view.y
+					this.overlayHookPointX = ev.offsetX - this.viewX
+					this.overlayHookPointY = ev.offsetY - this.viewY
 				}
 				// if event started in Thumbnail (outside of View)
 				else {
 					// Set hook point as View center
-					this.$overlay.hookPoint.x = this.$view.w / 2
-					this.$overlay.hookPoint.y = this.$view.h / 2
+					this.overlayHookPointX = this.viewW / 2
+					this.overlayHookPointY = this.viewH / 2
 
 					// Move View to start point
 					this._eventMove(ev)
@@ -410,17 +418,17 @@
 			this._checkMousePosition(ev)
 
 			// break if it is useless event
-			if (!this.$overlay.inMovement) {
+			if (!this.overlayInMovement) {
 				return;
 			}
 
 			// Update cache
-			this.$view.x = ev.offsetX - this.$overlay.hookPoint.x
-			this.$view.y = ev.offsetY - this.$overlay.hookPoint.y
+			this.viewX = ev.offsetX - this.overlayHookPointX
+			this.viewY = ev.offsetY - this.overlayHookPointY
 
 			// Update view position
-			this.$view.css('left', this.$view.x)
-			this.$view.css('top', this.$view.y)
+			this.$view.css('left', this.viewX)
+			this.$view.css('top', this.viewY)
 
 			// Move Cy
 			if (this.options.viewLiveFramerate !== false) {
@@ -429,11 +437,11 @@
 					this._moveCy()
 				}
 				// trigger less often than frame rate
-				else if (!this.$overlay.timeout) {
+				else if (!this.overlayTimeout) {
 					// Set a timeout for graph movement
-					this.$overlay.timeout = setTimeout(function () {
+					this.overlayTimeout = setTimeout(function () {
 						that._moveCy()
-						that.$overlay.timeout = false
+						that.overlayTimeout = false
 					}, 1000/this.options.viewLiveFramerate)
 				}
 			}
@@ -441,8 +449,8 @@
 
 	, _checkMousePosition: function (ev) {
 			// If mouse in over View
-			if(ev.offsetX > this.$view.x && ev.offsetX < this.$view.x + this.$view.borderHorizontal + this.$view.w
-				&& ev.offsetY > this.$view.y && ev.offsetY < this.$view.y + this.$view.borderVertical + this.$view.h) {
+			if(ev.offsetX > this.viewX && ev.offsetX < this.viewX + this.viewBorderHorizontal + this.viewW
+				&& ev.offsetY > this.viewY && ev.offsetY < this.viewY + this.viewBorderVertical + this.viewH) {
 				this.$panel.addClass('mouseover-view')
 			} else {
 				this.$panel.removeClass('mouseover-view')
@@ -451,12 +459,12 @@
 
 	, _eventMoveEnd: function (ev) {
 			// Unlock view changing caused by graph events
-			this.$view.locked = false
+			this.viewLocked = false
 
 			// Remove class when mouse is not over Navigator
 			this.$panel.removeClass('mouseover-view')
 
-			if (!this.$overlay.inMovement) {
+			if (!this.overlayInMovement) {
 				return;
 			}
 
@@ -469,7 +477,7 @@
 			}
 
 			// Stop movement permission
-			this.$overlay.inMovement = false
+			this.overlayInMovement = false
 		}
 
 	, _eventZoom: function (ev) {
@@ -511,26 +519,23 @@
 		}
 
 		this._thumbnailUpdating = true;
+		console.log('init update')
 
-		var requestAnimationFrame = ( window.requestAnimationFrame || window.mozRequestAnimationFrame ||  
-			window.webkitRequestAnimationFrame || window.msRequestAnimationFrame );
-
-		function update(){
+		setInterval(function(){
 			var canvas = that.$thumbnail[0];
 			var cxt = canvas.getContext('2d');
 
+			console.log('interval')
+
 			cxt.setTransform(1, 0, 0, 1, 0, 0);
-			cxt.clearRect(0, 0, canvas.width, canvas.height);
+			cxt.clearRect(0, 0, 100, 100);
+			// console.log('clear')
 
 			// Copy scaled thumbnail to buffer
-			that.cy.renderTo(cxt, that.$thumbnail.zoom, that.$thumbnail.pan);
+			that.cy.renderTo(cxt, 1, { x: 0, y: 0 });
+			// console.log('draw')
+		}, 1000/30);
 
-			requestAnimationFrame( update );
-		};
-
-		update();
-
-		return;
 	}
 
 	/****************************
@@ -539,8 +544,8 @@
 
 	, _moveCy: function () {
 			this.cy.pan({
-			  x: -(this.$view.x + this.$view.borderLeft - this.$thumbnail.pan.x) * this.width / this.$view.w
-			, y: -(this.$view.y + this.$view.borderLeft - this.$thumbnail.pan.y) * this.height / this.$view.h
+			  x: -(this.viewX + this.viewBorderLeft - this.thumbnailPan.x) * this.width / this.viewW
+			, y: -(this.viewY + this.viewBorderLeft - this.thumbnailPan.y) * this.height / this.viewH
 			})
 		}
 
@@ -555,15 +560,15 @@
 				, isZoomCenterInView = false
 
 			if (zoomCenterRaw) {
-				isZoomCenterInView = (zoomCenterRaw.left > this.$view.x) && (zoomCenterRaw.left < this.$view.x + this.$view.w + this.$view.borderHorizontal)
-					&& (zoomCenterRaw.top > this.$view.y) && (zoomCenterRaw.top < this.$view.y + this.$view.h + this.$view.borderVertical)
+				isZoomCenterInView = (zoomCenterRaw.left > this.viewX) && (zoomCenterRaw.left < this.viewX + this.viewW + this.viewBorderHorizontal)
+					&& (zoomCenterRaw.top > this.viewY) && (zoomCenterRaw.top < this.viewY + this.viewH + this.viewBorderVertical)
 			}
 
 			if (zoomCenterRaw && isZoomCenterInView) {
 				// Zoom about mouse position
 				zoomCenter = {
-				  x: (zoomCenterRaw.left - this.$view.x - this.$view.borderLeft) * this.width / this.$view.w
-				, y: (zoomCenterRaw.top - this.$view.y - this.$view.borderTop) * this.height / this.$view.h
+				  x: (zoomCenterRaw.left - this.viewX - this.viewBorderLeft) * this.width / this.viewW
+				, y: (zoomCenterRaw.top - this.viewY - this.viewBorderTop) * this.height / this.viewH
 				}
 			} else {
 				// Zoom abount View center
