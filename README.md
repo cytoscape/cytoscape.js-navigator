@@ -10,7 +10,7 @@ This plugin creates a widget that shows a bird's eye view of the graph such that
 ## Dependencies
 
  * jQuery >=1.4
- * Cytoscape.js >=2.1
+ * Cytoscape.js >=2.2
 
 
 ## Initialisation
