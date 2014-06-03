@@ -3,15 +3,15 @@
 <html>
 
 	<head>
-		<title>[jquery.cytoscape.js-navigator.js] Cytoscape.js Navigator Widget</title>
+		<title>[cytoscape.js-navigator.js] Cytoscape.js Navigator Demo</title>
 
-		<link href="jquery.cytoscape.js-navigator.css" rel="stylesheet" type="text/css" />
+		<link href="cytoscape.js-navigator.css" rel="stylesheet" type="text/css" />
 
 		<script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
 
 		<script src="//cdnjs.cloudflare.com/ajax/libs/cytoscape/2.2.1/cytoscape.min.js"></script>
 
-		<script src="jquery.cytoscape.js-navigator.js"></script>
+		<script src="cytoscape.js-navigator.js"></script>
 
 		<style>
 			body {
@@ -27,9 +27,11 @@
 
 		<script>
 			$(function(){
-				$('#cy').cytoscape({
+				var cy = cytoscape({
+					container: $('#cy')[0],
+
 					ready: function(){
-						window.cy = this;
+						
 					},
 
 					style: [
@@ -69,7 +71,7 @@
 					},
 				});
 
-				$('#cy').cytoscapeNavigator({
+				cy.navigator({
 					// options go here
 				});
 			});
@@ -77,7 +79,7 @@
 	</head>
 
 	<body>
-		<h1>[jquery.cytoscape.js-cxtmenu.js] Cytoscape.js Navigator Demo</h1>
+		<h1>[cytoscape.js-navigator.js] Cytoscape.js Navigator Demo</h1>
 
 		<div id="cy"></div>
 	</body>

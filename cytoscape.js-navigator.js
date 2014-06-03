@@ -4,7 +4,7 @@
   Modifications tracked on Github
 */
 
-(function($){
+(function($, $$){
 
 
   var Navigator = function ( element, options ) {
@@ -615,6 +615,12 @@
   , dblClickDelay: 200 // milliseconds
   }
 
-  $.fn.cyNavigator = $.fn.cytoscapeNavigator
+  $.fn.cyNavigator = $.fn.cytoscapeNavigator;
 
-})(jQuery)
+  $$('core', 'navigator', function( options ){
+    var cy = this;
+
+    $( cy.container() ).cytoscapeNavigator( options );
+  });
+
+})(jQuery, cytoscape)
