@@ -524,12 +524,16 @@
       var canvas = that.$thumbnail[0];
       var cxt = canvas.getContext('2d');
 
-      var w = canvas.clientWidth;
-      var h = canvas.clientHeight;
+      var w = that.panelWidth;
+      var h = that.panelHeight;
       var bb = that.cy.boundingBox();
       var zoom = Math.min(w/bb.w, h/bb.h);
-      var pan = { x: -bb.x1 * zoom, y: -bb.y1 * zoom };
       var pxRatio = 1;
+      var pan = {
+        x: (w - zoom*( bb.x1 + bb.x2 ))/2,
+        y: (h - zoom*( bb.y1 + bb.y2 ))/2
+      };
+
 
       cxt.setTransform(1, 0, 0, 1, 0, 0);
       cxt.clearRect(0, 0, w, h);
