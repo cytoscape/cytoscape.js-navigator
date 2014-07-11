@@ -135,7 +135,7 @@
       this._updateThumbnailImage()
     }
 
-  , _setupThumbnailSizes: function () { 
+  , _setupThumbnailSizes: function () {
       // Update bounding box cache
       this.boundingBox = this.cy.elements().boundingBox()
 
@@ -257,6 +257,7 @@
       this.width = this.$element.width()
       this.height = this.$element.height()
 
+      this._thumbnailSetup = false
       this._setupPanel()
       this._checkThumbnailSizesAndUpdate()
       this._setupView()
