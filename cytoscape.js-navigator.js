@@ -112,8 +112,6 @@
       this._setupThumbnailSizes()
       this._setupThumbnail()
 
-      return;
-
       // Repopulate thumbnail after graph render
       this.cy.on('initrender', $.proxy(this._checkThumbnailSizesAndUpdate, this))
 
