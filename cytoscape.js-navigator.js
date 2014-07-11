@@ -124,10 +124,9 @@
     }
 
   , _setupThumbnail: function () {
-    console.log('tn setup')
+
       // Setup Canvas
       if( !this._thumbnailSetup ){ // only need to setup once
-        console.log('setup')
         this.$thumbnail.attr('width', this.panelWidth)
         this.$thumbnail.attr('height', this.panelHeight)
         this._thumbnailSetup = true;
