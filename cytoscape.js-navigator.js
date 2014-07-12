@@ -112,8 +112,6 @@
       this._setupThumbnailSizes()
       this._setupThumbnail()
 
-      return;
-
       // Repopulate thumbnail after graph render
       this.cy.on('initrender', $.proxy(this._checkThumbnailSizesAndUpdate, this))
 
@@ -126,10 +124,9 @@
     }
 
   , _setupThumbnail: function () {
-    console.log('tn setup')
+
       // Setup Canvas
       if( !this._thumbnailSetup ){ // only need to setup once
-        console.log('setup')
         this.$thumbnail.attr('width', this.panelWidth)
         this.$thumbnail.attr('height', this.panelHeight)
         this._thumbnailSetup = true;
@@ -138,7 +135,7 @@
       this._updateThumbnailImage()
     }
 
-  , _setupThumbnailSizes: function () { 
+  , _setupThumbnailSizes: function () {
       // Update bounding box cache
       this.boundingBox = this.cy.elements().boundingBox()
 
@@ -260,6 +257,7 @@
       this.width = this.$element.width()
       this.height = this.$element.height()
 
+      this._thumbnailSetup = false
       this._setupPanel()
       this._checkThumbnailSizesAndUpdate()
       this._setupView()
@@ -526,12 +524,16 @@
       var canvas = that.$thumbnail[0];
       var cxt = canvas.getContext('2d');
 
-      var w = canvas.clientWidth;
-      var h = canvas.clientHeight;
+      var w = that.panelWidth;
+      var h = that.panelHeight;
       var bb = that.cy.boundingBox();
       var zoom = Math.min(w/bb.w, h/bb.h);
-      var pan = { x: -bb.x1 * zoom, y: -bb.y1 * zoom };
       var pxRatio = 1;
+      var pan = {
+        x: (w - zoom*( bb.x1 + bb.x2 ))/2,
+        y: (h - zoom*( bb.y1 + bb.y2 ))/2
+      };
+
 
       cxt.setTransform(1, 0, 0, 1, 0, 0);
       cxt.clearRect(0, 0, w, h);
