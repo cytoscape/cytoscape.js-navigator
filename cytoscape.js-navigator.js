@@ -37,7 +37,7 @@
         that._initView()
         that._initOverlay()
       });
-      
+
 
       // Cache sizes
       this.width = this.$element.width()
@@ -204,8 +204,6 @@
 
       var cyZoom = this.cy.zoom()
         , cyPan = this.cy.pan()
-
-      var bb = this.cy.boundingBox();
 
       // Horizontal computation
       this.viewW = this.width / cyZoom * this.thumbnailZoom
@@ -526,7 +524,7 @@
 
       var w = that.panelWidth;
       var h = that.panelHeight;
-      var bb = that.cy.boundingBox();
+      var bb = that.boundingBox;
       var zoom = Math.min(w/bb.w, h/bb.h);
       var pxRatio = 1;
       var pan = {

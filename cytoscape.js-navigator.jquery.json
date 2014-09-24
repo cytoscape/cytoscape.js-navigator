@@ -1,6 +1,6 @@
 {
 	"name": "cytoscape.js-navigator",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "A bird's eye view navigator widget that lets the user zoom and pan a Cytoscape.js graph.",
 	"title": "Cytoscape.js Navigator",
 	"keywords": [
@@ -13,7 +13,7 @@
 	"dependencies": {
 		"jquery": ">=1.4",
 		"cytoscape": ">=2.2"
-	}, 
+	},
 	"licenses": [
 		{
 			"type": "LGPLv3",
