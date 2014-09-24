@@ -34,7 +34,7 @@ If Cytoscape.js initialisation is time consuming Navigator may not start properl
 $('#cy').cy({
 	ready: function(){
 		$('#cy').cytoscapeNavigator()
-	} 
+	}
 	/* ... */
 })
 
@@ -45,7 +45,7 @@ $('#cy').cy({
     $('#cy').cytoscapeNavigator()
 })
 ```
-        
+
 ## Styling
 
 Navigator and its components (thumbnail's container, view's container) may be styled via CSS.
@@ -88,55 +88,52 @@ $('#cy').cyNavigator({
 ```
 
 ### container
-    
+
 Can be a HTML or jQuery element or jQuery selector
 
 Used to indicate navigator HTML container. If is false then a new DOM Element is created.
-    
+
 ### viewLiveFramerate
-    
+
 Set false to update graph pan (position) only on navigator's view drag end.
 Set 0 to instantly update graph pan when navigator's view is dragged.
 Set a positive number (N frames per second) to update navigator's view not more than N times per second.
 
 ### thumbnailEventFramerate
-    
-Maximal number of thumbnail update's per second triggered by graph events.
+
+Maximal number of thumbnail updates per second triggered by graph events.
 
 ### thumbnailLiveFramerate
-    
-Maximal number of constant thumbnail update's per second. Set false to disable.
+
+Maximal number of constant thumbnail updates per second. Set false to disable.
 
 ### dblClickDelay
-    
-Maximal delay (in miliseconds) between two clicks to consider them as a double click.
+
+Maximal delay (in milliseconds) between two clicks to consider them as a double click.
 
 ## Public API
 
 Access plugin methods by calling cyNavigator('function name') from jQuery element graph container:
 
     $('#cy').cyNavigator('resize') // call resize event to refresh navigator data
-    
+
 List of available methods:
 * resize
 * destroy
-    
+
 ## Resize navigator
 
-You may want to reset Navigator's sizes and settings after:
+If you resized Navigator container (e.x. `$('#cy .cytoscape-navigator').width(300)`) then call
+Navigator resize method (e.x. `$('#cy').cytoscapeNavigator('resize')`).
 
-* Resizing graph's container (e.x. `$('#cy').width(900)`)
-* Resizing graph's Navigator (e.x. `$('#cy .cytoscape-navigator').width(300)`)
-
-In order to have well looking and functioning Navigator you'll have to do one of the following:
-
-* Trigger _resize_ event on graph container (e.x. `$('#cy').trigger('resize')`)
-* Call Navigator's resize method (e.x. `$('#cy').cytoscapeNavigator('resize')`)
+If you resized Cytoscape.js container (e.x. `$('#cy').width(900)`) then:
+* if you're using Cytoscape.js 2.2.x then call Navigator resize method (e.x. `$('#cy').cytoscapeNavigator('resize')`)
+* if you're using Cytoscape.js >= 2.3.x then call [`cy.resize()`](http://js.cytoscape.org/#core/viewport-manipulation/cy.resize)
 
 ## Examples
 
 [Default navigator](http://cytoscape.github.io/cytoscape.js-navigator/demo.html)
 
-## Screencast 
+## Screencast
 
 [Cytoscape Navigator preview](http://www.youtube.com/watch?v=vGmPK74e8bI)

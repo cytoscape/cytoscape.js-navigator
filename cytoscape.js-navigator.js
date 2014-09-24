@@ -38,13 +38,9 @@
         that._initOverlay()
       });
 
-
       // Cache sizes
       this.width = this.$element.width()
       this.height = this.$element.height()
-
-      // Hook element resize
-      this.$element.on('resize', $.proxy(this.resize, this))
     }
 
   , destroy: function () {
@@ -85,6 +81,8 @@
       }
 
       this._setupPanel()
+
+      this.cy.on('resize', $.proxy(this.resize, this))
     }
 
   , _setupPanel: function () {
