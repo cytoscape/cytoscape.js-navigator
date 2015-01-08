@@ -489,7 +489,7 @@
     }
 
   , _hookGraphUpdates: function () {
-      this.cy.on('position add remove data', $.proxy(this._checkThumbnailSizesAndUpdate, this, false))
+      this.cy.on('position add remove data style', $.proxy(this._checkThumbnailSizesAndUpdate, this, false))
     }
 
   , _setGraphUpdatesTimer: function () {
@@ -536,8 +536,7 @@
 
       // Copy scaled thumbnail to buffer
       that.cy.renderTo(cxt, zoom, pan, pxRatio);
-
-      cytoscape.util.requestAnimationFrame( render );
+      that._thumbnailUpdating = false;
     }
 
     cytoscape.util.requestAnimationFrame( render );
