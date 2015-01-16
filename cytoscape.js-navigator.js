@@ -44,7 +44,12 @@
     }
 
   , destroy: function () {
-      this.$panel.remove()
+      // If container is not created by navigator then just empty it
+      if (this.options.container) {
+        this.$panel.empty()
+      } else {
+        this.$panel.remove()
+      }
       this.$element.removeData('navigator')
     }
 
