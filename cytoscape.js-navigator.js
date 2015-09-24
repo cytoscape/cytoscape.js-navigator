@@ -44,7 +44,12 @@
     }
 
   , destroy: function () {
-      this.$panel.remove()
+      // If container is not created by navigator and its removal is prohibited
+      if (this.options.container && !this.options.removeCustomContainer) {
+        this.$panel.empty()
+      } else {
+        this.$panel.remove()
+      }
       this.$element.removeData('navigator')
     }
 
@@ -611,6 +616,7 @@
   , thumbnailEventFramerate: 30 // max thumbnail's updates per second triggered by graph updates
   , thumbnailLiveFramerate: false // max thumbnail's updates per second. Set false to disable
   , dblClickDelay: 200 // milliseconds
+  , removeCustomContainer: true // destroy the container specified by user on plugin destroy
   }
 
   $.fn.cyNavigator = $.fn.cytoscapeNavigator;
