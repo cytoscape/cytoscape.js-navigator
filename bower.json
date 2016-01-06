@@ -1,6 +1,6 @@
 {
   "name": "js.cytoscape-navigator",
-  "main": ["cytoscape.js-navigator.js", "cytoscape.js-navigator.css",],
+  "main": ["cytoscape.js-navigator.js", "cytoscape.js-navigator.css"],
   "version": "1.0.0",
   "homepage": "https://github.com/cytoscape/cytoscape.js-navigator",
   "authors": [
