@@ -524,15 +524,15 @@
 
       var raf = !window ? null : (window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame);
 
-      raf = raf || function (fn) {
-              if (fn) {
-                  setTimeout(fn, 1000 / 60);
-              }
-          };
+          raf = raf || function (fn) {
+                  if (fn) {
+                      setTimeout(fn, 1000 / 60);
+                  }
+              };
 
-      var requestAnimationFrame = function (fn) {
-          raf(fn);
-      }
+          var requestAnimationFrame = function (fn) {
+              raf(fn);
+          }
 
     var render = function(){
       var canvas = that.$thumbnail[0];
@@ -556,11 +556,11 @@
       that.cy.renderTo(cxt, zoom, pan, pxRatio);
 
      // cytoscape.util.requestAnimationFrame( render );
-        requestAnimationFrame( render );
+       requestAnimationFrame( render );
     }
 
    // cytoscape.util.requestAnimationFrame( render );
-          requestAnimationFrame( render );
+    requestAnimationFrame( render );
 
   }
 
