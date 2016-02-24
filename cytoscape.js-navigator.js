@@ -521,6 +521,19 @@
 
     this._thumbnailUpdating = true;
 
+
+      var raf = !window ? null : (window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame);
+
+          raf = raf || function (fn) {
+                  if (fn) {
+                      setTimeout(fn, 1000 / 60);
+                  }
+              };
+
+          var requestAnimationFrame = function (fn) {
+              raf(fn);
+          }
+
     var render = function(){
       var canvas = that.$thumbnail[0];
       var cxt = canvas.getContext('2d');
@@ -542,10 +555,12 @@
       // Copy scaled thumbnail to buffer
       that.cy.renderTo(cxt, zoom, pan, pxRatio);
 
-      cytoscape.util.requestAnimationFrame( render );
+     // cytoscape.util.requestAnimationFrame( render );
+       requestAnimationFrame( render );
     }
 
-    cytoscape.util.requestAnimationFrame( render );
+   // cytoscape.util.requestAnimationFrame( render );
+    requestAnimationFrame( render );
 
   }
 
