@@ -1,0 +1,20 @@
+{
+  "name": "cytoscape-navigator",
+  "version": "1.0.0",
+  "description": "his plugin creates a widget that shows a bird's eye view of the graph such that the entire graph is visible.  Using this widget, the user can zoom and pan about the graph.",
+  "main": "dist/cytoscape-navigator.js",
+  "scripts": {
+    "build": "./node_modules/.bin/webpack --bail --progress --profile",
+    "dist": "./node_modules/.bin/webpack --bail --progress --profile"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@github.com:cytoscape/cytoscape.js-navigator.git"
+  },
+  "author": "Alexandr Truhin <bmbalex@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "copy-webpack-plugin": "^1.1.1",
+    "webpack": "^1.12.14"
+  }
+}
