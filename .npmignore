@@ -1,0 +1,9 @@
+node_modules/
+
+.gitignore
+bower.json
+cytoscape.js-navigator.css
+cytoscape.js-navigator.jquery.json
+cytoscape.js-navigator.js
+demo.html
+webpack.config.js
