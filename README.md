@@ -68,6 +68,8 @@ cytoscapeNavigator(jquery, cytoscape);
 
 Once the setup is complete you must initialize the instance in the same manner as above.
 
+For a full demo on using this library as a module please see [this repository](https://github.com/antjkennedy/cytoscape.js-navigator-moduledemo)
+
 ## Styling
 
 Navigator and its components (thumbnail's container, view's container) may be styled via CSS.
