@@ -9,7 +9,8 @@
 // if module is not defined, use the traditional behaviour of
 // initialising in place using elements defined on window
 if (typeof module === 'undefined') {
-  initialize();
+  // initialise using globally defined, jquery and cytoscape
+  initialize(jQuery, cytoscape);
 }
 // otherwise export the initialize function allowing users of
 // the library finer control over the initialiation process
@@ -18,17 +19,6 @@ else {
 }
 
 function initialize($ /* = window.jQuery */, $$ /* = window.cytoscape */){
-
-  // if jquery has not been defined attempt to grab it from
-  // the window
-  if (!$) {
-    $ = window.jQuery;
-  }
-  // if cytoscape has not been defined attempt to grab it from
-  // the window
-  if (!$$) {
-    $$ = window.cytoscape;
-  }
 
   // throw reference errors if either jQuery or Cytoscape have not been defined
   if (!$) {
