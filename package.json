@@ -5,7 +5,7 @@
   "main": "dist/cytoscape-navigator.js",
   "scripts": {
     "build": "./node_modules/.bin/webpack --bail --progress --profile",
-    "dist": "./node_modules/.bin/webpack --bail --progress --profile"
+    "dist": "./node_modules/.bin/webpack --bail --progress --profile",
   },
   "repository": {
     "type": "git",
@@ -16,5 +16,9 @@
   "devDependencies": {
     "copy-webpack-plugin": "^1.1.1",
     "webpack": "^1.12.14"
+  },
+  "dependencies": {
+    "cytoscape": "^2.6.5",
+    "jquery": "^2.2.1"
   }
 }
