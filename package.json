@@ -5,7 +5,7 @@
   "main": "dist/cytoscape-navigator.js",
   "scripts": {
     "build": "./node_modules/.bin/webpack --bail --progress --profile",
-    "dist": "./node_modules/.bin/webpack --bail --progress --profile",
+    "dist": "./node_modules/.bin/webpack --bail --progress --profile"
   },
   "repository": {
     "type": "git",
