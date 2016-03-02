@@ -37,6 +37,10 @@ function initialize($ /* = window.jQuery */, $$ /* = window.cytoscape */){
   if (!$$) {
     throw new ReferenceError('Cytoscape Navigator depends on Cytoscape >= 2.2');
   }
+  if (!$.fn.cytoscape) {
+    throw new ReferenceError('In order to use this library Cytoscape ' +
+                             'must have registered jQuery');
+  }
 
   var Navigator = function ( element, options ) {
     this._init(element, options);
@@ -56,7 +60,7 @@ function initialize($ /* = window.jQuery */, $$ /* = window.cytoscape */){
       this.$element = $(element);
       this.options = $.extend(true, {}, $.fn.cytoscapeNavigator.defaults, options);
 
-      that.$element.cytoscape(function(){
+      this.$element.cytoscape(function(){
         that.cy = that.$element.cytoscape('get');
 
         // Cache bounding box

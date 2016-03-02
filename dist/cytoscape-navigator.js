@@ -62,15 +62,18 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	(function() {
 
+	// if module is not defined, use the traditional behaviour of
+	// initialising in place using elements defined on window
 	if (false) {
 	  initialize();
 	}
+	// otherwise export the initialize function allowing users of
+	// the library finer control over the initialiation process
 	else {
 	  module.exports = initialize;
-	  // window.cytoscapeNavigator = initialize;
 	}
 
-	function initialize($, $$){
+	function initialize($ /* = window.jQuery */, $$ /* = window.cytoscape */){
 
 	  // if jquery has not been defined attempt to grab it from
 	  // the window
@@ -83,11 +86,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    $$ = window.cytoscape;
 	  }
 
+	  // throw reference errors if either jQuery or Cytoscape have not been defined
 	  if (!$) {
 	    throw new ReferenceError('Cytoscape Navigator depends on jQuery >=1.4');
 	  }
 	  if (!$$) {
 	    throw new ReferenceError('Cytoscape Navigator depends on Cytoscape >= 2.2');
+	  }
+	  if (!$.fn.cytoscape) {
+	    throw new ReferenceError('In order to use this library Cytoscape ' +
+	                             'must have registered jQuery');
 	  }
 
 	  var Navigator = function ( element, options ) {
@@ -108,7 +116,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      this.$element = $(element);
 	      this.options = $.extend(true, {}, $.fn.cytoscapeNavigator.defaults, options);
 
-	      that.$element.cytoscape(function(){
+	      this.$element.cytoscape(function(){
 	        that.cy = that.$element.cytoscape('get');
 
 	        // Cache bounding box

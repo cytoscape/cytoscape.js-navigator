@@ -55,6 +55,17 @@ manner as including the script directly in the browser.
 However you are now able to inject your own jQuery and Cytoscape instances
 `require('cytoscape-navigator')(jQuery, cytoscape)`.
 
+```js
+var jquery = require('jquery');
+var cytoscape = require('cytoscape');
+var cytoscapeNavigator = require('cytoscape-navigator');
+
+// ensure that cytoscape registers jquery
+cytoscape.registerJquery(jquery);
+// now setup cytoscape-navigator
+cytoscapeNavigator(jquery, cytoscape);
+```
+
 Once the setup is complete you must initialize the instance in the same manner as above.
 
 ## Styling
