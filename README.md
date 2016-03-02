@@ -46,6 +46,17 @@ $('#cy').cy({
 })
 ```
 
+### Module Setup
+
+If using this library as a module you have more control over the setup of the library.
+executing `require('cytoscape-navigator')()` will instantiate the library in same
+manner as including the script directly in the browser.
+
+However you are now able to inject your own jQuery and Cytoscape instances
+`require('cytoscape-navigator')(jQuery, cytoscape)`.
+
+Once the setup is complete you must initialize the instance in the same manner as above.
+
 ## Styling
 
 Navigator and its components (thumbnail's container, view's container) may be styled via CSS.
