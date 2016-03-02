@@ -3,7 +3,6 @@
 
 var WEBPACK = require('webpack');
 var WEBPACK_COPY = require('copy-webpack-plugin');
-var WEBPACK_HTML = require('html-webpack-plugin');
 
 module.exports = makeConfig();
 
