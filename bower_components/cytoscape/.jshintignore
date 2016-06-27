@@ -1,0 +1,4 @@
+test/**
+build/**
+dist/**
+node_modules/**

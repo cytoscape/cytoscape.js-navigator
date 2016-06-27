@@ -3,64 +3,49 @@
 <html>
 
 	<head>
-		<title>cytoscape-navigator.js demo</title>
+		<title>[cytoscape.js-navigator.js] Cytoscape.js Navigator Demo</title>
 
-		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+		<link href="cytoscape.js-navigator.css" rel="stylesheet" type="text/css" />
+
+		<script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
 
 		<script src="http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js"></script>
 
-		<!-- for testing with local version of cytoscape.js -->
-		<!--<script src="../cytoscape.js/build/cytoscape.js"></script>-->
-
-		<script src="cytoscape-navigator.js"></script>
+		<script src="cytoscape.js-navigator.js"></script>
 
 		<style>
 			body {
-				font-family: helvetica neue, helvetica, liberation sans, arial, sans-serif;
+				font-family: helvetica;
 				font-size: 14px;
 			}
-
 			#cy {
-				position: absolute;
-				left: 0;
-				top: 0;
-				bottom: 0;
-				right: 0;
-				z-index: 999;
-			}
-
-			h1 {
-				opacity: 0.5;
-				font-size: 1em;
-				font-weight: bold;
+				width: 600px;
+				height: 600px;
+				border: 1px solid #888;
 			}
 		</style>
 
 		<script>
-			document.addEventListener('DOMContentLoaded', function(){
+			$(function(){
+				var cy = cytoscape({
+					container: $('#cy')[0],
 
-				var cy = window.cy = cytoscape({
-					container: document.getElementById('cy'),
+					ready: function(){
+
+					},
 
 					style: [
 						{
 							selector: 'node',
-							style: {
+							css: {
 								'content': 'data(name)'
 							}
 						},
 
 						{
 							selector: 'edge',
-							style: {
+							css: {
 								'target-arrow-shape': 'triangle'
-							}
-						},
-
-						{
-							selector: ':selected',
-							style: {
-
 							}
 						}
 					],
@@ -86,18 +71,17 @@
 					},
 				});
 
-				// demo your core ext
-				cy.navigator( /* args... */ );
-
+				cy.navigator({
+					// options go here
+				});
 			});
 		</script>
 	</head>
 
 	<body>
-		<h1>cytoscape-navigator demo</h1>
+		<h1>[cytoscape.js-navigator.js] Cytoscape.js Navigator Demo</h1>
 
 		<div id="cy"></div>
-
 	</body>
 
 </html>

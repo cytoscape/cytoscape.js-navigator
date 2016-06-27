@@ -1,17 +1,25 @@
 {
-  "name": "js.cytoscape-navigator",
-  "main": ["cytoscape.js-navigator.js", "cytoscape.js-navigator.css"],
-  "version": "1.0.0",
-  "homepage": "https://github.com/cytoscape/cytoscape.js-navigator",
-  "authors": [
-    "bmbalex@gmail.com"
-  ],
-  "license": "MIT",
+  "name": "cytoscape-navigator",
+  "description": "Bird&#39;s eye view pan and zoom control for Cytoscape.js",
+  "main": "cytoscape-navigator.js",
+  "dependencies": {
+    "cytoscape": "^2.2.0",
+    "jquery": "^1.4.0 || ^2.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cytoscape/cytoscape.js-navigator.git"
+  },
   "ignore": [
     "**/.*",
     "node_modules",
     "bower_components",
     "test",
     "tests"
-  ]
+  ],
+  "keywords": [
+    "cytoscape",
+    "cyext"
+  ],
+  "license": "MIT"
 }
