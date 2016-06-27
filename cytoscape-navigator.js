@@ -7,7 +7,7 @@
     , viewLiveFramerate: 0 // set false to update graph pan only on drag end; set 0 to do it instantly; set a number (frames per second) to update not more than N times per second
     , dblClickDelay: 200 // milliseconds
     , removeCustomContainer: true // destroy the container specified by user on plugin destroy
-    , rerenderDelay: 100 // ms to throttle rerender updates to the panzoom for performance
+    , rerenderDelay: 500 // ms to throttle rerender updates to the panzoom for performance
   };
 
   var debounce = (function(){
@@ -360,7 +360,7 @@
      */
   , _initThumbnail: function () {
       // Create thumbnail
-      this.$thumbnail = $('<canvas/>')
+      this.$thumbnail = $('<img/>')
 
       // Add thumbnail canvas to the DOM
       this.$panel.append(this.$thumbnail)
@@ -371,14 +371,6 @@
     }
 
   , _setupThumbnail: function () {
-
-      // Setup Canvas
-      if( !this._thumbnailSetup ){ // only need to setup once
-        this.$thumbnail.attr('width', this.panelWidth)
-        this.$thumbnail.attr('height', this.panelHeight)
-        this._thumbnailSetup = true;
-      }
-
       this._updateThumbnailImage()
     }
 
@@ -753,25 +745,31 @@
     var render = function(){
       that._checkThumbnailSizesAndUpdate();
 
-      var canvas = that.$thumbnail[0];
-      var cxt = canvas.getContext('2d');
+      var $img = that.$thumbnail;
+      var img = $img[0];
 
       var w = that.panelWidth;
       var h = that.panelHeight;
       var bb = that.boundingBox;
-      var zoom = Math.min(w/bb.w, h/bb.h);
+      var zoom = Math.min( w/bb.w, h/bb.h );
+
       var pxRatio = 1;
-      var pan = {
-        x: (w - zoom*( bb.x1 + bb.x2 ))/2,
-        y: (h - zoom*( bb.y1 + bb.y2 ))/2
+
+      var translate = {
+        x: (w - zoom*( bb.w ))/2,
+        y: (h - zoom*( bb.h ))/2
       };
 
+      img.setAttribute('src', that.cy.png({
+        full: true,
+        scale: zoom
+      }));
 
-      cxt.setTransform(1, 0, 0, 1, 0, 0);
-      cxt.clearRect(0, 0, w, h);
-
-      // Copy scaled thumbnail to buffer
-      that.cy.renderTo(cxt, zoom, pan, pxRatio);
+      $img.css({
+        'position': 'absolute',
+        'left': translate.x + 'px',
+        'top': translate.y + 'px'
+      });
     }
 
     this.cy.onRender( throttle(render, that.options.rerenderDelay) );
