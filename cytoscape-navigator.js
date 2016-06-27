@@ -298,6 +298,8 @@
     }
 
   , destroy: function () {
+      this._removeEventsHandling();
+
       // If container is not created by navigator and its removal is prohibited
       if (this.options.container && !this.options.removeCustomContainer) {
         this.$panel.empty()
@@ -520,7 +522,8 @@
         ]
 
       // handle events and stop their propagation
-      this.$overlay.on(eventsLocal.join(' '), function (ev) {
+      var overlayListener;
+      this.$overlay.on(eventsLocal.join(' '), overlayListener = function (ev) {
         // Touch events
         if (ev.type == 'touchstart') {
           // Will count as middle of View
@@ -547,7 +550,8 @@
       })
 
       // Hook global events
-      $(window).on(eventsGlobal.join(' '), function (ev) {
+      var globalListener;
+      $(window).on(eventsGlobal.join(' '), globalListener = function (ev) {
         // Do not make any computations if it is has no effect on Navigator
         if (!that.overlayInMovement)
           return;
@@ -589,6 +593,12 @@
         // Don't use peventPropagation as it breaks mouse events
         return false;
       })
+
+      this._removeEventsHandling = function(){
+
+        this.$overlay.off( eventsLocal.join(' '), overlayListener )
+        $(window).off( eventsGlobal.join(' '), globalListener )
+      }
     }
 
   , _eventMoveStart: function (ev) {
