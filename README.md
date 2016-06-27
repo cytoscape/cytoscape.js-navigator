@@ -52,6 +52,7 @@ var defaults = {
   , thumbnailLiveFramerate: false // max thumbnail's updates per second. Set false to disable
   , dblClickDelay: 200 // milliseconds
   , removeCustomContainer: true // destroy the container specified by user on plugin destroy
+  , rerenderDelay: 100 // ms to throttle rerender updates to the panzoom for performance
 };
 
 var nav = cy.navigator( defaults ); // get navigator instance, nav
