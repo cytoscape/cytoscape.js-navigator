@@ -5,8 +5,6 @@
   var defaults = {
       container: false // can be a HTML or jQuery element or jQuery selector
     , viewLiveFramerate: 0 // set false to update graph pan only on drag end; set 0 to do it instantly; set a number (frames per second) to update not more than N times per second
-    , thumbnailEventFramerate: 30 // max thumbnail's updates per second triggered by graph updates
-    , thumbnailLiveFramerate: false // max thumbnail's updates per second. Set false to disable
     , dblClickDelay: 200 // milliseconds
     , removeCustomContainer: true // destroy the container specified by user on plugin destroy
     , rerenderDelay: 100 // ms to throttle rerender updates to the panzoom for performance
@@ -370,16 +368,6 @@
       // Setup thumbnail
       this._setupThumbnailSizes()
       this._setupThumbnail()
-
-      // Repopulate thumbnail after graph render
-      this.cy.on('initrender', $.proxy(this._checkThumbnailSizesAndUpdate, this))
-
-      // Thumbnail updates
-      if (this.options.thumbnailLiveFramerate === false) {
-        this._hookGraphUpdates()
-      } else {
-        this._setGraphUpdatesTimer()
-      }
     }
 
   , _setupThumbnail: function () {
@@ -753,21 +741,6 @@
       this.cy.on('position add remove data style', $.proxy(this._checkThumbnailSizesAndUpdate, this, false))
     }
 
-  , _setGraphUpdatesTimer: function () {
-      var delay = 1000.0 / this.options.thumbnailLiveFramerate
-        , that = this
-        , updateFunction = function () {
-            // Use timeout instead of interval as it is not accumulating events if events pool is not processed fast enough
-            setTimeout(function (){
-              that._checkThumbnailSizesAndUpdate(true)
-              updateFunction()
-            }, delay)
-          }
-
-      // Init infinite loop
-      updateFunction()
-    }
-
   , _updateThumbnailImage: function (force_refresh) {
     var that = this;
 
@@ -778,6 +751,8 @@
     this._thumbnailUpdating = true;
 
     var render = function(){
+      that._checkThumbnailSizesAndUpdate();
+
       var canvas = that.$thumbnail[0];
       var cxt = canvas.getContext('2d');
 
