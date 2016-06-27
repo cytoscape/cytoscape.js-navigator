@@ -3,7 +3,7 @@
   "description": "Bird&#39;s eye view pan and zoom control for Cytoscape.js",
   "main": "cytoscape-navigator.js",
   "dependencies": {
-    "cytoscape": "^2.7.0",
+    "cytoscape": "^2.6.0",
     "jquery": "^1.4.0 || ^2.0.0"
   },
   "repository": {
