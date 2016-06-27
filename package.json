@@ -1,6 +1,6 @@
 {
   "name": "cytoscape-navigator",
-  "version": "0.0.0",
+  "version": "1.1.0",
   "description": "Bird&#39;s eye view pan and zoom control for Cytoscape.js",
   "main": "cytoscape-navigator.js",
   "spm": {
