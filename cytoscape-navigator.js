@@ -286,15 +286,15 @@
       // Cache bounding box
       this.boundingBox = this.cy.elements().boundingBox()
 
+      // Cache sizes
+      this.width = this.$element.width()
+      this.height = this.$element.height()
+
       // Init components
       this._initPanel()
       this._initThumbnail()
       this._initView()
       this._initOverlay()
-
-      // Cache sizes
-      this.width = this.$element.width()
-      this.height = this.$element.height()
     }
 
   , destroy: function () {
@@ -459,6 +459,7 @@
         .width(this.viewW)
         .height(this.viewH)
         .css({
+          position: 'absolute',
           left: this.viewX
         , top: this.viewY
         })
@@ -739,11 +740,7 @@
       }
     }
 
-  , _hookGraphUpdates: function () {
-      this.cy.on('position add remove data style', $.proxy(this._checkThumbnailSizesAndUpdate, this, false))
-    }
-
-  , _updateThumbnailImage: function (force_refresh) {
+  , _updateThumbnailImage: function () {
     var that = this;
 
     if( this._thumbnailUpdating ){
@@ -754,6 +751,7 @@
 
     var render = function(){
       that._checkThumbnailSizesAndUpdate();
+      that._setupView();
 
       var $img = that.$thumbnail;
       var img = $img[0];
