@@ -277,6 +277,23 @@
     Main functions
   ****************************/
 
+  , bb: function(){
+    var bb = this.cy.elements().boundingBox()
+
+    if( bb.w === 0 || bb.h === 0 ){
+      return {
+        x1: 0,
+        x2: Infinity,
+        y1: 0,
+        y2: Infinity,
+        w: Infinity,
+        h: Infinity
+      } // => hide interactive overlay
+    }
+
+    return bb
+  }
+
   , _init: function ( cy, options ) {
       this.$element = $( cy.container() )
       this.options = $.extend({}, defaults, options)
@@ -284,7 +301,7 @@
       this.cy = cy
 
       // Cache bounding box
-      this.boundingBox = this.cy.elements().boundingBox()
+      this.boundingBox = this.bb()
 
       // Cache sizes
       this.width = this.$element.width()
@@ -378,7 +395,7 @@
 
   , _setupThumbnailSizes: function () {
       // Update bounding box cache
-      this.boundingBox = this.cy.elements().boundingBox()
+      this.boundingBox = this.bb()
 
       this.thumbnailZoom = Math.min(this.panelHeight / this.boundingBox.h, this.panelWidth / this.boundingBox.w)
 
@@ -768,10 +785,16 @@
         y: (h - zoom*( bb.h ))/2
       };
 
-      img.setAttribute('src', that.cy.png({
+      var png = that.cy.png({
         full: true,
         scale: zoom
-      }));
+      });
+
+      if( png.indexOf('image/png') < 0 ){
+        img.removeAttribute( 'src' );
+      } else {
+        img.setAttribute( 'src', png );
+      }
 
       $img.css({
         'position': 'absolute',
