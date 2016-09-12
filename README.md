@@ -10,7 +10,6 @@ Bird&#39;s eye view pan and zoom control for Cytoscape.js
 ## Dependencies
 
  * Cytoscape.js ^2.6.0
- * jQuery ^1.4.0 || ^2.0.0
 
 
 ## Usage instructions
@@ -46,7 +45,7 @@ Plain HTML/JS has the extension registered for you automatically, because no `re
 var cy = cytoscape({ /* ... */ });
 
 var defaults = {
-    container: false // can be a HTML or jQuery element or jQuery selector
+    container: false // can be a HTML element or CSS selector
   , viewLiveFramerate: 0 // set false to update graph pan only on drag end; set 0 to do it instantly; set a number (frames per second) to update not more than N times per second
   , thumbnailEventFramerate: 30 // max thumbnail's updates per second triggered by graph updates
   , thumbnailLiveFramerate: false // max thumbnail's updates per second. Set false to disable
