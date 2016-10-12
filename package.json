@@ -1,6 +1,6 @@
 {
-  "name": "cytoscape-navigator",
-  "version": "1.1.3",
+  "name": "cytoscape-navigator-tongbin",
+  "version": "1.1.4",
   "description": "Bird&#39;s eye view pan and zoom control for Cytoscape.js",
   "main": "cytoscape-navigator.js",
   "spm": {

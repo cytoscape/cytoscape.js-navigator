@@ -4,7 +4,11 @@ cytoscape-navigator
 
 ## Description
 
-Bird&#39;s eye view pan and zoom control for Cytoscape.js
+Bird&#39;s eye view pan and zoom control for Cytoscape.js, it's folked from https://github.com/cytoscape/cytoscape.js-navigator.
+
+Changes made:
+
+1. remove jquery dependencies
 
 
 ## Dependencies
@@ -15,8 +19,8 @@ Bird&#39;s eye view pan and zoom control for Cytoscape.js
 ## Usage instructions
 
 Download the library:
- * via npm: `npm install cytoscape-navigator`,
- * via bower: `bower install cytoscape-navigator`, or
+ * via npm: `npm install cytoscape-navigator-tongbin`,
+ * via bower: `bower install cytoscape-navigator-tongbin`, or
  * via direct download in the repository (probably from a tag).
 
 `require()` the library as appropriate for your project:
@@ -24,14 +28,14 @@ Download the library:
 CommonJS:
 ```js
 var cytoscape = require('cytoscape');
-var navigator = require('cytoscape-navigator');
+var navigator = require('cytoscape-navigator-tongbin');
 
 navigator( cytoscape ); // register extension
 ```
 
 AMD:
 ```js
-require(['cytoscape', 'cytoscape-navigator'], function( cytoscape, navigator ){
+require(['cytoscape', 'cytoscape-navigator-tongbin'], function( cytoscape, navigator ){
   navigator( cytoscape ); // register extension
 });
 ```
@@ -66,4 +70,4 @@ This project is set up to automatically be published to npm and bower.  To publi
 
 1. Set the version number environment variable: `export VERSION=1.2.3`
 1. Publish: `gulp publish`
-1. If publishing to bower for the first time, you'll need to run `bower register cytoscape-navigator https://github.com/cytoscape/cytoscape.js-navigator.git`
+1. If publishing to bower for the first time, you'll need to run `bower register cytoscape-navigator-tongbin https://github.com/tongbin/cytoscape.js-navigator.git`
