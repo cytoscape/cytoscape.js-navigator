@@ -1,6 +1,130 @@
 ;(function(){ 'use strict';
 
-  var $;
+  var whitespace = /\s+/;
+
+  var $ = function(d){
+    var dataKey = '_cytoscapeNavigatorData';
+    var listenerKey = '_cytoscapeNavigatorListeners';
+
+    return {
+      0: d,
+      addClass: function( cls ){
+        this.toggleClass( cls, true );
+      },
+      removeClass: function( cls ){
+        this.toggleClass( cls, true );
+      },
+      toggleClass: function( cls, bool ){
+        this[0].classList.toggle( cls, bool );
+      },
+      data: function( name, val ){
+        var k = dataKey;
+        var data = this[0][k] = this[0][k] || {};
+
+        if ( val === undefined ) {
+          return data[ name ];
+        } else {
+          data[ name ] = val;
+        }
+
+        return this;
+      },
+      trigger: function(eventName){
+        var evt = new Event(eventName);
+
+        this[0].dispatchEvent(evt);
+
+        return this;
+      },
+      append: function(ele) {
+        this[0].appendChild( ele[0] || ele );
+
+        return this;
+      },
+      attr: function( name, val ) {
+        if (val === undefined) {
+          return this[0].getAttribute( name );
+        } else {
+          this[0].setAttribute( name, val );
+        }
+
+        return this;
+      },
+      offset: function() {
+        return this[0].getBoundingClientRect();
+      },
+      listeners: function( name ){
+        var k = listenerKey;
+        var l = this[0][k] = this[0][k] || {};
+
+        l[ name ] = l[ name ] || [];
+
+        return l[ name ];
+      },
+      on: function(name, listener, one) {
+        name.split( whitespace ).forEach(function(n){
+          var wrappedListener = (function( e ){
+            e.originalEvent = e;
+
+            if( one ){
+              this.off( n, wrappedListener );
+            }
+
+            listener.apply( this[0], [ e ] );
+          }).bind( this );
+
+          this.listeners(n).push({
+            wrapped: wrappedListener,
+            passed: listener
+          });
+
+          this[0].addEventListener( n, wrappedListener );
+        }, this);
+
+        return this;
+      },
+      bind: function(name, listener){
+        return this.on( name, listener );
+      },
+      off: function(name, listener){
+        name.split( whitespace ).forEach(function(n) {
+          var liss = this.listeners(n);
+
+          for( var i = liss.length - 1; i >= 0; i-- ){
+            var lis = liss[i];
+
+            if( lis.wrapped === listener || lis.passed === listener ){
+              this[0].removeEventListener( n, lis.wrapped );
+
+              liss.splice( i, 1 );
+            }
+          }
+        }, this);
+      },
+      one: function(name, listener) {
+        return this.on( name, listener, true );
+      },
+      height: function(){
+        return this[0].clientHeight;
+      },
+      width: function(){
+        return this[0].clientWidth;
+      },
+      empty: function(){
+        // to remove children seems faster
+        while( d.firstChild ) {
+          d.removeChild( d.firstChild );
+        }
+      },
+      remove: function(){
+        d.parentNode.removeChild( d );
+      }
+    };
+  };
+
+  $.error = function(msg){
+    throw new Error(msg);
+  };
 
   var defaults = {
       container: false // can be a HTML or jQuery element or jQuery selector
@@ -296,7 +420,7 @@
 
   , _init: function ( cy, options ) {
       this.$element = $( cy.container() )
-      this.options = $.extend({}, defaults, options)
+      this.options = Object.assign({}, defaults, options)
 
       this.cy = cy
 
@@ -323,7 +447,6 @@
       } else {
         this.$panel.remove()
       }
-      this.$element.removeData('navigator')
     }
 
   /****************************
@@ -340,27 +463,24 @@
       var options = this.options
 
       if( options.container ) {
-        if( options.container instanceof jQuery ){
-          if( options.container.length > 0 ){
-            this.$panel = options.container.first()
-          } else {
-            $.error("Container for jquery.cyNavigator is empty")
-            return
-          }
-        } else if ( $(options.container).length > 0 ) {
-          this.$panel = $(options.container).first()
+        if (typeof options.container === 'string' && document.querySelectorAll(options.container).length > 0 ) {
+          this.$panel = $(document.querySelectorAll(options.container)[0])
+        } if (options.container instanceof HTMLElement)  { //check it's a dom
+          this.$panel = $(options.container)
         } else {
           $.error("There is no any element matching your selector for jquery.cyNavigator")
           return
         }
       } else {
-        this.$panel = $('<div class="cytoscape-navigator"/>')
-        $('body').append(this.$panel)
+        var node = document.createElement('div');
+        node.className = 'cytoscape-navigator';
+        document.body.appendChild(node);
+        this.$panel = $(node);
       }
 
       this._setupPanel()
 
-      this.cy.on('resize', $.proxy(this.resize, this))
+      this.cy.on('resize', this.resize.bind(this))
     }
 
   , _setupPanel: function () {
@@ -379,9 +499,12 @@
      */
   , _initThumbnail: function () {
       // Create thumbnail
-      this.$thumbnail = $('<img/>')
+       var thumbnail = document.createElement('img');
 
       // Add thumbnail canvas to the DOM
+
+      this.$thumbnail = $(thumbnail);
+
       this.$panel.append(this.$thumbnail)
 
       // Setup thumbnail
@@ -437,14 +560,17 @@
   , _initView: function () {
       var that = this
 
-      this.$view = $('<div class="cytoscape-navigatorView"/>')
+      var div = document.createElement('div');
+      div.className = "cytoscape-navigatorView";
+      this.$view = $(div);
       this.$panel.append(this.$view)
 
       // Compute borders
-      this.viewBorderTop = parseInt(this.$view.css('border-top-width'), 10)
-      this.viewBorderRight = parseInt(this.$view.css('border-right-width'), 10)
-      this.viewBorderBottom = parseInt(this.$view.css('border-bottom-width'), 10)
-      this.viewBorderLeft = parseInt(this.$view.css('border-left-width'), 10)
+      var style = window.getComputedStyle(this.$view[0]);
+      this.viewBorderTop = parseInt(style.getPropertyValue('border-top-width'), 10)
+      this.viewBorderRight = parseInt(style.getPropertyValue('border-right-width'), 10)
+      this.viewBorderBottom = parseInt(style.getPropertyValue('border-bottom-width'), 10)
+      this.viewBorderLeft = parseInt(style.getPropertyValue('border-left-width'), 10)
 
       // Abstract borders
       this.viewBorderHorizontal = this.viewBorderLeft + this.viewBorderRight
@@ -453,7 +579,7 @@
       this._setupView()
 
       // Hook graph zoom and pan
-      this.cy.on('zoom pan', $.proxy(this._setupView, this))
+      this.cy.on('zoom pan', this._setupView.bind(this))
     }
 
   , _setupView: function () {
@@ -472,14 +598,10 @@
       this.viewY = -cyPan.y * this.viewH / this.height + this.thumbnailPan.y - this.viewBorderTop
 
       // CSS view
-      this.$view
-        .width(this.viewW)
-        .height(this.viewH)
-        .css({
-          position: 'absolute',
-          left: this.viewX
-        , top: this.viewY
-        })
+      this.$view[0].setAttribute('style',
+        'position:absolute;left:'+this.viewX+'px;top:'+this.viewY+'px;width:'+this.viewW+'px;height:'+this.viewH+'px;'
+      );
+      // set the style manually
     }
 
     /*
@@ -492,7 +614,9 @@
      */
   , _initOverlay: function () {
       // Used to capture mouse events
-      this.$overlay = $('<div class="cytoscape-navigatorOverlay"/>')
+      var div = document.createElement('div');
+      div.className = 'cytoscape-navigatorOverlay';
+      this.$overlay = $(div)
 
       // Add overlay to the DOM
       this.$panel.append(this.$overlay)
@@ -542,22 +666,26 @@
       // handle events and stop their propagation
       var overlayListener;
       this.$overlay.on(eventsLocal.join(' '), overlayListener = function (ev) {
+        var position = {
+          offsetX: ev.offsetX,
+          offsetY: ev.offsetY
+        };
         // Touch events
         if (ev.type == 'touchstart') {
           // Will count as middle of View
-          ev.offsetX = that.viewX + that.viewW / 2
-          ev.offsetY = that.viewY + that.viewH / 2
+          position.offsetX = that.viewX + that.viewW / 2
+          position.offsetY = that.viewY + that.viewH / 2
         }
 
         // Normalize offset for browsers which do not provide that value
         if (ev.offsetX === undefined || ev.offsetY === undefined) {
           var targetOffset = $(ev.target).offset()
-          ev.offsetX = ev.pageX - targetOffset.left
-          ev.offsetY = ev.pageY - targetOffset.top
+          position.offsetX = ev.pageX - targetOffset.left
+          position.offsetY = ev.pageY - targetOffset.top
         }
 
         if (ev.type == 'mousedown' || ev.type == 'touchstart') {
-          that._eventMoveStart(ev)
+          that._eventMoveStart(position)
         } else if (ev.type == 'mousewheel' || ev.type == 'DOMMouseScroll') {
           that._eventZoom(ev)
         }
@@ -570,6 +698,10 @@
       // Hook global events
       var globalListener;
       $(window).on(eventsGlobal.join(' '), globalListener = function (ev) {
+        var position = {
+          offsetX: ev.offsetX,
+          offsetY: ev.offsetY
+        };
         // Do not make any computations if it is has no effect on Navigator
         if (!that.overlayInMovement)
           return;
@@ -577,19 +709,19 @@
         // Touch events
         if (ev.type == 'touchend') {
           // Will count as middle of View
-          ev.offsetX = that.viewX + that.viewW / 2
-          ev.offsetY = that.viewY + that.viewH / 2
+          position.offsetX = that.viewX + that.viewW / 2
+          position.offsetY = that.viewY + that.viewH / 2
         } else if (ev.type == 'touchmove') {
           // Hack - we take in account only first touch
-          ev.pageX = ev.originalEvent.touches[0].pageX
-          ev.pageY = ev.originalEvent.touches[0].pageY
+          position.pageX = ev.touches[0].pageX
+          position.pageY = ev.touches[0].pageY
         }
 
         // Normalize offset for browsers which do not provide that value
         if (ev.offsetX === undefined || ev.offsetY === undefined) {
           var targetOffset = $(ev.target).offset()
-          ev.offsetX = ev.pageX - targetOffset.left
-          ev.offsetY = ev.pageY - targetOffset.top
+          position.offsetX = ev.pageX - targetOffset.left
+          position.offsetY = ev.pageY - targetOffset.top
         }
 
         // Translate global events into local coordinates
@@ -597,14 +729,14 @@
           var targetOffset = $(ev.target).offset()
             , overlayOffset = that.$overlay.offset()
 
-          ev.offsetX = ev.offsetX - overlayOffset.left + targetOffset.left
-          ev.offsetY = ev.offsetY - overlayOffset.top + targetOffset.top
+          position.offsetX = ev.offsetX - overlayOffset.left + targetOffset.left
+          position.offsetY = ev.offsetY - overlayOffset.top + targetOffset.top
         }
 
         if (ev.type == 'mousemove' || ev.type == 'touchmove') {
-          that._eventMove(ev)
+          that._eventMove(position)
         } else if (ev.type == 'mouseup' || ev.type == 'touchend') {
-          that._eventMoveEnd(ev)
+          that._eventMoveEnd(position)
         }
 
         // Prevent default and propagation
@@ -677,10 +809,10 @@
       }
     }
 
-  , _eventMove: function (ev) {
+  , _eventMove: function (p) {
       var that = this
 
-      this._checkMousePosition(ev)
+      this._checkMousePosition(p)
 
       // break if it is useless event
       if (!this.overlayInMovement) {
@@ -688,12 +820,13 @@
       }
 
       // Update cache
-      this.viewX = ev.offsetX - this.overlayHookPointX
-      this.viewY = ev.offsetY - this.overlayHookPointY
+      this.viewX = p.offsetX - this.overlayHookPointX
+      this.viewY = p.offsetY - this.overlayHookPointY
 
       // Update view position
-      this.$view.css('left', this.viewX)
-      this.$view.css('top', this.viewY)
+      this.$view[0].setAttribute('style',
+        'position:absolute;left:'+this.viewX+'px;top:'+this.viewY+'px;width:'+this.viewW+'px;height:'+this.viewH+'px;'
+      );
 
       // Move Cy
       if (this.options.viewLiveFramerate !== false) {
@@ -746,7 +879,7 @@
     }
 
   , _eventZoom: function (ev) {
-      var zoomRate = Math.pow(10, ev.originalEvent.wheelDeltaY / 1000 || ev.originalEvent.wheelDelta / 1000 || ev.originalEvent.detail / -32)
+      var zoomRate = Math.pow(10, ev.wheelDeltaY / 1000 || ev.wheelDelta / 1000 || ev.detail / -32)
         , mousePosition = {
             left: ev.offsetX
           , top: ev.offsetY
@@ -795,12 +928,7 @@
       } else {
         img.setAttribute( 'src', png );
       }
-
-      $img.css({
-        'position': 'absolute',
-        'left': translate.x + 'px',
-        'top': translate.y + 'px'
-      });
+      img.setAttribute('style', 'position:absolute;left:'+translate.x + 'px;top:'+translate.y + 'px;');
     }
 
     this.cy.onRender( throttle(render, that.options.rerenderDelay) );
@@ -840,11 +968,9 @@
   }
 
   // registers the extension on a cytoscape lib ref
-  var register = function( cytoscape, jq ){
+  var register = function( cytoscape ){
 
-    if( !cytoscape || !jq ){ return; } // can't register if cytoscape unspecified
-
-    $ = jq;
+    if( !cytoscape ){ return; } // can't register if cytoscape unspecified
 
     cytoscape( 'core', 'navigator', function( options ){
       var cy = this;
@@ -864,8 +990,8 @@
     });
   }
 
-  if( typeof cytoscape !== 'undefined' && typeof jQuery !== 'undefined' ){ // expose to global cytoscape (i.e. window.cytoscape)
-    register( cytoscape, jQuery );
+  if( typeof cytoscape !== 'undefined'){ // expose to global cytoscape (i.e. window.cytoscape)
+    register( cytoscape );
   }
 
 })();
