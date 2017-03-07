@@ -858,9 +858,7 @@
     module.exports = function( cytoscape, jq ){
       register( cytoscape, jq || require('jquery') );
     };
-  }
-
-  if( typeof define !== 'undefined' && define.amd ){ // expose as an amd/requirejs module
+  } else if( typeof define !== 'undefined' && define.amd ){ // expose as an amd/requirejs module
     define('cytoscape-navigator', function(){
       return register;
     });
