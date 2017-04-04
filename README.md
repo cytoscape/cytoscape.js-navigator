@@ -9,7 +9,7 @@ Bird&#39;s eye view pan and zoom control for Cytoscape.js
 
 ## Dependencies
 
- * Cytoscape.js ^2.6.0
+ * Cytoscape.js ^2.6.0 || ^3.0.0
  * jQuery ^2.0.0 || ^1.4.0
 
 
