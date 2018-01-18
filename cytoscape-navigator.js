@@ -597,8 +597,12 @@
           var targetOffset = $(ev.target).offset()
             , overlayOffset = that.$overlay.offset()
 
-          ev.offsetX = ev.offsetX - overlayOffset.left + targetOffset.left
-          ev.offsetY = ev.offsetY - overlayOffset.top + targetOffset.top
+          if(targetOffset && overlayOffset){
+            ev.offsetX = ev.offsetX - overlayOffset.left + targetOffset.left
+            ev.offsetY = ev.offsetY - overlayOffset.top + targetOffset.top
+          } else {
+            return false;
+          }
         }
 
         if (ev.type == 'mousemove' || ev.type == 'touchmove') {
