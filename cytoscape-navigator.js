@@ -354,8 +354,9 @@
           return
         }
       } else {
-        this.$panel = $('<div class="cytoscape-navigator"/>')
-        $('body').append(this.$panel)
+        var $container = $(this);
+        this.$panel = $('<div class="cytoscape-navigator"/>');
+        $container.get(0).$element.append(this.$panel);
       }
 
       this._setupPanel()
