@@ -294,7 +294,28 @@
     return bb
   }
 
+  , _addCyListener: function(events, handler){
+    this._cyListeners.push({
+      events: events,
+      handler: handler
+    })
+
+    this.cy.on(events, handler)
+  }
+
+  , _removeCyListeners: function(){
+    var cy = this.cy
+
+    this._cyListeners.forEach(function(l){
+      cy.off(l.events, l.handler)
+    })
+
+    cy.offRender(this._onRenderHandler)
+  }
+
   , _init: function ( cy, options ) {
+      this._cyListeners = []
+
       this.$element = $( cy.container() )
       this.options = $.extend({}, defaults, options)
 
@@ -360,7 +381,7 @@
 
       this._setupPanel()
 
-      this.cy.on('resize', $.proxy(this.resize, this))
+      this._addCyListener('resize', $.proxy(this.resize, this))
     }
 
   , _setupPanel: function () {
@@ -453,7 +474,7 @@
       this._setupView()
 
       // Hook graph zoom and pan
-      this.cy.on('zoom pan', $.proxy(this._setupView, this))
+      this._addCyListener('zoom pan', $.proxy(this._setupView, this))
     }
 
   , _setupView: function () {
@@ -807,7 +828,9 @@
       });
     }
 
-    this.cy.onRender( throttle(render, that.options.rerenderDelay) );
+    this._onRenderHandler = throttle(render, that.options.rerenderDelay)
+
+    this.cy.onRender( this._onRenderHandler )
   }
 
   /****************************
