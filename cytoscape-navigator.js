@@ -8,6 +8,7 @@
     , dblClickDelay: 200 // milliseconds
     , removeCustomContainer: true // destroy the container specified by user on plugin destroy
     , rerenderDelay: 500 // ms to throttle rerender updates to the panzoom for performance
+    , fitToContainer: false // scale the image to the bounds of parent container
   };
 
   var debounce = (function(){
@@ -819,6 +820,16 @@
         img.removeAttribute( 'src' );
       } else {
         img.setAttribute( 'src', png );
+      }
+
+      // Set the image height/width to the container height/width to preserve aspect ratio within its bounds
+      if( that.options.fitToContainer === true ){
+        // Calculate aspect ratio based on the container dimensions
+        var heightRatio = h < img.naturalHeight ? h / img.naturalHeight : 1;
+        var widthRatio = w < img.naturalWidth ? w / img.naturalWidth : 1;
+        // Update image height / width while maintaining aspect ratio
+        img.height = img.naturalHeight * heightRatio;
+        img.width = img.naturalWidth * widthRatio;
       }
 
       $img.css({
