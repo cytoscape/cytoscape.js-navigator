@@ -1,7 +1,5 @@
 ;(function(){ 'use strict';
 
-  var $;
-
   var defaults = {
       container: false // can be a HTML or jQuery element or jQuery selector
     , viewLiveFramerate: 0 // set false to update graph pan only on drag end; set 0 to do it instantly; set a number (frames per second) to update not more than N times per second
@@ -267,7 +265,26 @@
 
   var Navigator = function ( element, options ) {
     this._init(element, options)
-  }
+  };
+
+  var extend = function() {
+    for(var i = 1; i < arguments.length; i++) {
+      for(var key in arguments[i]) {
+        if(arguments[i].hasOwnProperty(key)) {
+          arguments[0][key] = arguments[i][key];
+        }
+      }
+    }
+    return arguments[0];
+  };
+
+  var wid = function(elem) {
+    return Math.max(elem.clientWidth, elem.scrollWidth, elem.offsetWidth);
+  };
+
+  var hei = function(elem) {
+    return Math.max(elem.clientHeight, elem.scrollHeight, elem.offsetHeight);
+  };
 
   Navigator.prototype = {
 
@@ -316,8 +333,8 @@
   , _init: function ( cy, options ) {
       this._cyListeners = []
 
-      this.$element = $( cy.container() )
-      this.options = $.extend({}, defaults, options)
+      this.$element = cy.container()
+      this.options = extend({}, defaults, options)
 
       this.cy = cy
 
@@ -325,8 +342,8 @@
       this.boundingBox = this.bb()
 
       // Cache sizes
-      this.width = this.$element.width()
-      this.height = this.$element.height()
+      this.width = wid(this.$element);
+      this.height = hei(this.$element)
 
       // Init components
       this._initPanel()
@@ -340,11 +357,10 @@
 
       // If container is not created by navigator and its removal is prohibited
       if (this.options.container && !this.options.removeCustomContainer) {
-        this.$panel.empty()
+        this.$panel.innerHTML = '';
       } else {
-        this.$panel.remove()
+        document.body.removeChild(this.$panel);
       }
-      this.$element.removeData('navigator')
     }
 
   /****************************
@@ -359,37 +375,26 @@
      */
   , _initPanel: function () {
       var options = this.options
-
-      if( options.container ) {
-        if( options.container instanceof $ ){
-          if( options.container.length > 0 ){
-            this.$panel = options.container.first()
-          } else {
-            $.error("Container for jquery.cyNavigator is empty")
-            return
-          }
-        } else if ( $(options.container).length > 0 ) {
-          this.$panel = $(options.container).first()
+      if(options.container && typeof options.container === 'string' && options.container.length > 0) {
+        // to not break users which gives a jquery string selector
+        if (options.container.indexOf('#') !== -1) {
+          this.$panel = document.getElementById(options.container.replace('#', ''));
         } else {
-          $.error("There is no any element matching your selector for jquery.cyNavigator")
-          return
-        }
+          this.$panel = document.getElementsByClassName(options.container.replace('.', ''))[0];
+        } 
       } else {
-        this.$panel = $('<div class="cytoscape-navigator"/>')
-        $('body').append(this.$panel)
+        this.$panel = document.createElement('div');
+        this.$panel.className = 'cytoscape-navigator';
+        document.body.appendChild(this.$panel);
       }
-
       this._setupPanel()
-
-      this._addCyListener('resize', $.proxy(this.resize, this))
+      this._addCyListener('resize', this.resize.bind(this))
     }
 
   , _setupPanel: function () {
-      var options = this.options
-
       // Cache sizes
-      this.panelWidth = this.$panel.width()
-      this.panelHeight = this.$panel.height()
+      this.panelWidth = wid(this.$panel);
+      this.panelHeight = hei(this.$panel);
     }
 
     /*
@@ -400,10 +405,10 @@
      */
   , _initThumbnail: function () {
       // Create thumbnail
-      this.$thumbnail = $('<img/>')
+      this.$thumbnail = document.createElement('img');
 
       // Add thumbnail canvas to the DOM
-      this.$panel.append(this.$thumbnail)
+      this.$panel.appendChild(this.$thumbnail);
 
       // Setup thumbnail
       this._setupThumbnailSizes()
@@ -456,17 +461,15 @@
      * locked {boolean}
      */
   , _initView: function () {
-      var that = this
-
-      this.$view = $('<div class="cytoscape-navigatorView"/>')
-      this.$panel.append(this.$view)
-
+      this.$view = document.createElement('div');
+      this.$view.className = 'cytoscape-navigatorView';
+      this.$panel.appendChild(this.$view)
       // Compute borders
-      this.viewBorderTop = parseInt(this.$view.css('border-top-width'), 10)
-      this.viewBorderRight = parseInt(this.$view.css('border-right-width'), 10)
-      this.viewBorderBottom = parseInt(this.$view.css('border-bottom-width'), 10)
-      this.viewBorderLeft = parseInt(this.$view.css('border-left-width'), 10)
-
+      this.viewBorderTop = parseInt(this.$view.style['border-top-width'], 10) || 0;
+      this.viewBorderRight = parseInt(this.$view.style['border-right-width'], 10) || 0;
+      this.viewBorderBottom = parseInt(this.$view.style['border-bottom-width'], 10) || 0;
+      this.viewBorderLeft = parseInt(this.$view.style['border-left-width'], 10) || 0;
+      
       // Abstract borders
       this.viewBorderHorizontal = this.viewBorderLeft + this.viewBorderRight
       this.viewBorderVertical = this.viewBorderTop + this.viewBorderBottom
@@ -474,7 +477,7 @@
       this._setupView()
 
       // Hook graph zoom and pan
-      this._addCyListener('zoom pan', $.proxy(this._setupView, this))
+      this._addCyListener('zoom pan', this._setupView.bind(this))
     }
 
   , _setupView: function () {
@@ -493,14 +496,11 @@
       this.viewY = -cyPan.y * this.viewH / this.height + this.thumbnailPan.y - this.viewBorderTop
 
       // CSS view
-      this.$view
-        .width(this.viewW)
-        .height(this.viewH)
-        .css({
-          position: 'absolute',
-          left: this.viewX
-        , top: this.viewY
-        })
+      this.$view.style['width'] = this.viewW + 'px';
+      this.$view.style['height'] = this.viewH + 'px';
+      this.$view.style['position'] = 'absolute';
+      this.$view.style['left'] = this.viewX + 'px';
+      this.$view.style['top'] = this.viewY + 'px';
     }
 
     /*
@@ -513,10 +513,11 @@
      */
   , _initOverlay: function () {
       // Used to capture mouse events
-      this.$overlay = $('<div class="cytoscape-navigatorOverlay"/>')
+      this.$overlay = document.createElement('div');
+      this.$overlay.className = 'cytoscape-navigatorOverlay';
 
       // Add overlay to the DOM
-      this.$panel.append(this.$overlay)
+      this.$panel.appendChild(this.$overlay)
 
       // Init some attributes
       this.overlayHookPointX = 0;
@@ -532,9 +533,8 @@
 
   , resize: function () {
       // Cache sizes
-      this.width = this.$element.width()
-      this.height = this.$element.height()
-
+      this.width = wid(this.$element);
+      this.height = hei(this.$element);
       this._thumbnailSetup = false
       this._setupPanel()
       this._checkThumbnailSizesAndUpdate()
@@ -561,20 +561,36 @@
         ]
 
       // handle events and stop their propagation
-      var overlayListener;
-      this.$overlay.on(eventsLocal.join(' '), overlayListener = function (ev) {
+      var overlayListener = function (ev) {
+        console.log('overlayListener ev: ', ev.type);
         // Touch events
         if (ev.type == 'touchstart') {
           // Will count as middle of View
-          ev.offsetX = that.viewX + that.viewW / 2
-          ev.offsetY = that.viewY + that.viewH / 2
+          Object.defineProperty(ev, 'offsetX', {
+            value: that.viewX + that.viewW / 2,
+            writable: true
+          });
+          Object.defineProperty(ev, 'offsetY', {
+            value: that.viewY + that.viewH / 2,
+            writable: true
+          });
         }
 
         // Normalize offset for browsers which do not provide that value
         if (ev.offsetX === undefined || ev.offsetY === undefined) {
-          var targetOffset = $(ev.target).offset()
-          ev.offsetX = ev.pageX - targetOffset.left
-          ev.offsetY = ev.pageY - targetOffset.top
+          var rect = ev.target.getBoundingClientRect();
+          var targetOffset = { 
+            top: rect.top + window.scrollY, 
+            left: rect.left + window.scrollX, 
+          };
+          Object.defineProperty(ev, 'offsetX', {
+            value: ev.pageX - targetOffset.left,
+            writable: true
+          });
+          Object.defineProperty(ev, 'offsetY', {
+            value: ev.pageY - targetOffset.top,
+            writable: true
+          });
         }
 
         if (ev.type == 'mousedown' || ev.type == 'touchstart') {
@@ -586,41 +602,78 @@
         // Prevent default and propagation
         // Don't use peventPropagation as it breaks mouse events
         return false;
-      })
+      };
 
       // Hook global events
-      var globalListener;
-      $(window).on(eventsGlobal.join(' '), globalListener = function (ev) {
+      var globalListener = function (ev) {
+
         // Do not make any computations if it is has no effect on Navigator
         if (!that.overlayInMovement)
           return;
+        console.log('globalListener ev: ', ev.type);
 
         // Touch events
         if (ev.type == 'touchend') {
           // Will count as middle of View
-          ev.offsetX = that.viewX + that.viewW / 2
-          ev.offsetY = that.viewY + that.viewH / 2
+          Object.defineProperty(ev, 'offsetX', {
+            value: that.viewX + that.viewW / 2,
+            writable: true
+          });
+          Object.defineProperty(ev, 'offsetY', {
+            value: that.viewY + that.viewH / 2,
+            writable: true
+          });
         } else if (ev.type == 'touchmove') {
           // Hack - we take in account only first touch
-          ev.pageX = ev.originalEvent.touches[0].pageX
-          ev.pageY = ev.originalEvent.touches[0].pageY
+          Object.defineProperty(ev, 'pageX', {
+            value: ev.originalEvent.touches[0].pageX,
+            writable: true
+          });
+          Object.defineProperty(ev, 'pageY', {
+            value: ev.originalEvent.touches[0].pageY,
+            writable: true
+          });
         }
 
         // Normalize offset for browsers which do not provide that value
         if (ev.offsetX === undefined || ev.offsetY === undefined) {
-          var targetOffset = $(ev.target).offset()
-          ev.offsetX = ev.pageX - targetOffset.left
-          ev.offsetY = ev.pageY - targetOffset.top
+          var rect = ev.target.getBoundingClientRect();
+          var targetOffset = { 
+            top: rect.top + window.scrollY, 
+            left: rect.left + window.scrollX, 
+          };
+          Object.defineProperty(ev, 'offsetX', {
+            value: ev.pageX - targetOffset.left,
+            writable: true
+          });
+          Object.defineProperty(ev, 'offsetY', {
+            value: ev.pageY - targetOffset.top,
+            writable: true
+          });
         }
 
         // Translate global events into local coordinates
-        if (ev.target !== that.$overlay[0]) {
-          var targetOffset = $(ev.target).offset()
-            , overlayOffset = that.$overlay.offset()
-
-          if(targetOffset && overlayOffset){
-            ev.offsetX = ev.offsetX - overlayOffset.left + targetOffset.left
-            ev.offsetY = ev.offsetY - overlayOffset.top + targetOffset.top
+        if (ev.target !== that.$overlay) {
+          var rect = ev.target.getBoundingClientRect();
+          var rect2 = that.$overlay.getBoundingClientRect();
+          var targetOffset = { 
+            top: rect.top + window.scrollY, 
+            left: rect.left + window.scrollX, 
+          };
+          var overlayOffset = { 
+            top: rect2.top + window.scrollY, 
+            left: rect2.left + window.scrollX, 
+          };
+          
+          if(targetOffset && overlayOffset) {
+            Object.defineProperty(ev, 'offsetX', {
+              value: ev.offsetX - overlayOffset.left + targetOffset.left,
+              writable: true
+            });
+            Object.defineProperty(ev, 'offsetY', {
+              value: ev.offsetY - overlayOffset.top + targetOffset.top,
+              writable: true
+            });
           } else {
             return false;
           }
@@ -635,12 +688,25 @@
         // Prevent default and propagation
         // Don't use peventPropagation as it breaks mouse events
         return false;
-      })
+      };
+
+      for (var i = 0; i < eventsLocal.length; i++) {
+        this.$overlay.addEventListener(eventsLocal[i], overlayListener, false);
+      }
+
+      for (var i = 0; i < eventsGlobal.length; i++) {
+        window.addEventListener(eventsGlobal[i], globalListener, false);
+      }
 
       this._removeEventsHandling = function(){
 
-        this.$overlay.off( eventsLocal.join(' '), overlayListener )
-        $(window).off( eventsGlobal.join(' '), globalListener )
+        for (var i = 0; i < eventsLocal.length; i++) {
+          this.$overlay.removeEventListener(eventsLocal[i], overlayListener);
+        }
+
+        for (var i = 0; i < eventsGlobal.length; i++) {
+          window.removeEventListener(eventsGlobal[i], globalListener);
+        }
       }
     }
 
@@ -717,8 +783,8 @@
       this.viewY = ev.offsetY - this.overlayHookPointY
 
       // Update view position
-      this.$view.css('left', this.viewX)
-      this.$view.css('top', this.viewY)
+      this.$view.style['left'] = this.viewX + 'px';
+      this.$view.style['top'] = this.viewY + 'px';
 
       // Move Cy
       if (this.options.viewLiveFramerate !== false) {
@@ -732,7 +798,7 @@
           this.overlayTimeout = setTimeout(function () {
             that._moveCy()
             that.overlayTimeout = false
-          }, 1000/this.options.viewLiveFramerate)
+          }, 1000 / this.options.viewLiveFramerate)
         }
       }
     }
@@ -741,9 +807,9 @@
       // If mouse in over View
       if(ev.offsetX > this.viewX && ev.offsetX < this.viewX + this.viewBorderHorizontal + this.viewW
         && ev.offsetY > this.viewY && ev.offsetY < this.viewY + this.viewBorderVertical + this.viewH) {
-        this.$panel.addClass('mouseover-view')
+        this.$panel.classList.add('mouseover-view')
       } else {
-        this.$panel.removeClass('mouseover-view')
+        this.$panel.classList.remove('mouseover-view')
       }
     }
 
@@ -752,7 +818,7 @@
       this.viewLocked = false
 
       // Remove class when mouse is not over Navigator
-      this.$panel.removeClass('mouseover-view')
+      this.$panel.classList.remove('mouseover-view')
 
       if (!this.overlayInMovement) {
         return;
@@ -771,7 +837,9 @@
     }
 
   , _eventZoom: function (ev) {
-      var zoomRate = Math.pow(10, ev.originalEvent.wheelDeltaY / 1000 || ev.originalEvent.wheelDelta / 1000 || ev.originalEvent.detail / -32)
+      var ev2 = extend({}, ev.originalEvent);
+      var delta = ev.wheelDeltaY / 1000 || ev.wheelDelta / 1000 || ev.detail / -32 || ev2.wheelDeltaY / 1000 || ev2.wheelDelta / 1000 || ev2.detail / -32;
+      var zoomRate = Math.pow(10, delta)
         , mousePosition = {
             left: ev.offsetX
           , top: ev.offsetY
@@ -791,12 +859,12 @@
 
     this._thumbnailUpdating = true;
 
-    var render = function(){
+    var render = function() {
       that._checkThumbnailSizesAndUpdate();
       that._setupView();
 
       var $img = that.$thumbnail;
-      var img = $img[0];
+      var img = $img;
 
       var w = that.panelWidth;
       var h = that.panelHeight;
@@ -814,18 +882,15 @@
         full: true,
         scale: zoom
       });
-
       if( png.indexOf('image/png') < 0 ){
         img.removeAttribute( 'src' );
       } else {
         img.setAttribute( 'src', png );
       }
 
-      $img.css({
-        'position': 'absolute',
-        'left': translate.x + 'px',
-        'top': translate.y + 'px'
-      });
+      $img.style['position'] = 'absolute';
+      $img.style['left'] = translate.x + 'px';
+      $img.style['top'] = translate.y + 'px';
     }
 
     this._onRenderHandler = throttle(render, that.options.rerenderDelay)
@@ -867,11 +932,9 @@
   }
 
   // registers the extension on a cytoscape lib ref
-  var register = function( cytoscape, jq ){
+  var register = function( cytoscape ){
 
-    if( !cytoscape || !jq ){ return; } // can't register if cytoscape unspecified
-
-    $ = jq;
+    if (!cytoscape){ return; } // can't register if cytoscape unspecified
 
     cytoscape( 'core', 'navigator', function( options ){
       var cy = this;
@@ -881,18 +944,18 @@
 
   };
 
-  if( typeof module !== 'undefined' && module.exports ){ // expose as a commonjs module
-    module.exports = function( cytoscape, jq ){
-      register( cytoscape, jq || require('jquery') );
+  if (typeof module !== 'undefined' && module.exports) { // expose as a commonjs module
+    module.exports = function( cytoscape ){
+      register( cytoscape );
     };
-  } else if( typeof define !== 'undefined' && define.amd ){ // expose as an amd/requirejs module
+  } else if (typeof define !== 'undefined' && define.amd) { // expose as an amd/requirejs module
     define('cytoscape-navigator', function(){
       return register;
     });
   }
 
-  if( typeof cytoscape !== 'undefined' && typeof jQuery !== 'undefined' ){ // expose to global cytoscape (i.e. window.cytoscape)
-    register( cytoscape, jQuery );
+  if (typeof cytoscape !== 'undefined') { // expose to global cytoscape (i.e. window.cytoscape)
+    register(cytoscape);
   }
 
 })();
