@@ -562,7 +562,6 @@
 
       // handle events and stop their propagation
       var overlayListener = function (ev) {
-        console.log('overlayListener ev: ', ev.type);
         // Touch events
         if (ev.type == 'touchstart') {
           // Will count as middle of View
@@ -610,7 +609,6 @@
         // Do not make any computations if it is has no effect on Navigator
         if (!that.overlayInMovement)
           return;
-        console.log('globalListener ev: ', ev.type);
 
         // Touch events
         if (ev.type == 'touchend') {
