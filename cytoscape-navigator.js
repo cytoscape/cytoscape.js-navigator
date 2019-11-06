@@ -889,6 +889,8 @@
       $img.style['position'] = 'absolute';
       $img.style['left'] = translate.x + 'px';
       $img.style['top'] = translate.y + 'px';
+      $img.style['width'] = '100%';
+      $img.style['height'] = '100%';
     }
 
     this._onRenderHandler = throttle(render, that.options.rerenderDelay)
