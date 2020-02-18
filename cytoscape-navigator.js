@@ -869,13 +869,6 @@
       var bb = that.boundingBox;
       var zoom = Math.min( w/bb.w, h/bb.h );
 
-      var pxRatio = 1;
-
-      var translate = {
-        x: (w - zoom*( bb.w ))/2,
-        y: (h - zoom*( bb.h ))/2
-      };
-
       var png = that.cy.png({
         full: true,
         scale: zoom
@@ -887,8 +880,9 @@
       }
 
       $img.style['position'] = 'absolute';
-      $img.style['left'] = translate.x + 'px';
-      $img.style['top'] = translate.y + 'px';
+      $img.style['width'] = w + 'px';
+      $img.style['height'] = h + 'px';
+
     }
 
     this._onRenderHandler = throttle(render, that.options.rerenderDelay)
