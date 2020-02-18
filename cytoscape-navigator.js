@@ -279,11 +279,11 @@
   };
 
   var wid = function(elem) {
-    return Math.max(elem.clientWidth, elem.scrollWidth, elem.offsetWidth);
+    return elem.getBoundingClientRect().width;
   };
 
   var hei = function(elem) {
-    return Math.max(elem.clientHeight, elem.scrollHeight, elem.offsetHeight);
+    return elem.getBoundingClientRect().height;
   };
 
   Navigator.prototype = {
@@ -359,7 +359,7 @@
       if (this.options.container && !this.options.removeCustomContainer) {
         this.$panel.innerHTML = '';
       } else {
-        document.body.removeChild(this.$panel);
+        this.$panel.parentElement.removeChild(this.$panel);
       }
     }
 
@@ -889,8 +889,6 @@
       $img.style['position'] = 'absolute';
       $img.style['left'] = translate.x + 'px';
       $img.style['top'] = translate.y + 'px';
-      $img.style['width'] = '100%';
-      $img.style['height'] = '100%';
     }
 
     this._onRenderHandler = throttle(render, that.options.rerenderDelay)
