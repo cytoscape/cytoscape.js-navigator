@@ -871,7 +871,9 @@
 
       var png = that.cy.png({
         full: true,
-        scale: zoom
+        scale: zoom,
+        maxHeight: h,
+        maxWidth: w
       });
       if( png.indexOf('image/png') < 0 ){
         img.removeAttribute( 'src' );
@@ -879,9 +881,14 @@
         img.setAttribute( 'src', png );
       }
 
+      var translate = {
+        x: (w - zoom*( bb.w ))/2,
+        y: (h - zoom*( bb.h ))/2
+      };
+
       $img.style['position'] = 'absolute';
-      $img.style['width'] = w + 'px';
-      $img.style['height'] = h + 'px';
+      $img.style['left'] = translate.x + 'px';
+      $img.style['top'] = translate.y + 'px';
 
     }
 
