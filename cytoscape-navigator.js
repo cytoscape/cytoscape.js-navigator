@@ -279,11 +279,11 @@
   };
 
   var wid = function(elem) {
-    return Math.max(elem.clientWidth, elem.scrollWidth, elem.offsetWidth);
+    return elem.getBoundingClientRect().width;
   };
 
   var hei = function(elem) {
-    return Math.max(elem.clientHeight, elem.scrollHeight, elem.offsetHeight);
+    return elem.getBoundingClientRect().height;
   };
 
   Navigator.prototype = {
@@ -359,7 +359,7 @@
       if (this.options.container && !this.options.removeCustomContainer) {
         this.$panel.innerHTML = '';
       } else {
-        document.body.removeChild(this.$panel);
+        this.$panel.parentElement.removeChild(this.$panel);
       }
     }
 
@@ -869,16 +869,11 @@
       var bb = that.boundingBox;
       var zoom = Math.min( w/bb.w, h/bb.h );
 
-      var pxRatio = 1;
-
-      var translate = {
-        x: (w - zoom*( bb.w ))/2,
-        y: (h - zoom*( bb.h ))/2
-      };
-
       var png = that.cy.png({
         full: true,
-        scale: zoom
+        scale: zoom,
+        maxHeight: h,
+        maxWidth: w
       });
       if( png.indexOf('image/png') < 0 ){
         img.removeAttribute( 'src' );
@@ -886,9 +881,15 @@
         img.setAttribute( 'src', png );
       }
 
+      var translate = {
+        x: (w - zoom*( bb.w ))/2,
+        y: (h - zoom*( bb.h ))/2
+      };
+
       $img.style['position'] = 'absolute';
       $img.style['left'] = translate.x + 'px';
       $img.style['top'] = translate.y + 'px';
+
     }
 
     this._onRenderHandler = throttle(render, that.options.rerenderDelay)
