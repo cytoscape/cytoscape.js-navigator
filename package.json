@@ -23,15 +23,6 @@
     "url": "https://github.com/cytoscape/cytoscape.js-navigator/issues"
   },
   "homepage": "https://github.com/cytoscape/cytoscape.js-navigator",
-  "devDependencies": {
-    "gulp": "^3.8.8",
-    "gulp-jshint": "^1.8.5",
-    "gulp-prompt": "^0.1.1",
-    "gulp-replace": "^0.4.0",
-    "gulp-shell": "^0.2.9",
-    "jshint-stylish": "^1.0.0",
-    "run-sequence": "^1.0.0"
-  },
   "peerDependencies": {
     "cytoscape": "^2.6.0 || ^3.0.0"
   }

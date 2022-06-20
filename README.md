@@ -62,9 +62,6 @@ You may call `nav.destroy()` to remove the navigator widget and associated clean
 
 ## Publishing instructions
 
-This project is set up to automatically be published to npm and bower.  To publish:
-
-1. Set the version number environment variable: `export VERSION=1.2.3`
-1. Publish: `gulp publish`
-1. If publishing to bower for the first time, you'll need to run `bower register cytoscape-navigator https://github.com/cytoscape/cytoscape.js-navigator.git`
+1. Update the package version: `npm version major|minor|patch`
+1. Publish to npm: `npm publish`
 1. Make a release on GitHub to automatically register a new Zenodo DOI
