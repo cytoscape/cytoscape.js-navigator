@@ -407,6 +407,8 @@
       // Create thumbnail
       this.$thumbnail = document.createElement('img');
 
+      this.$thumbnail.setAttribute("alt", "Graph navigator");
+
       // Add thumbnail canvas to the DOM
       this.$panel.appendChild(this.$thumbnail);
 
