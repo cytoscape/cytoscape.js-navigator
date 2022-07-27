@@ -1,0 +1,76 @@
+<!DOCTYPE>
+
+<html>
+
+    <head>
+    <title>cytoscape-navigator.js big data demo</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+
+    <link href="../cytoscape.js-navigator.css" rel="stylesheet" type="text/css" />
+    <style>
+        body {
+            font-family: helvetica neue, helvetica, liberation sans, arial, sans-serif;
+            font-size: 14px;
+        }
+
+        #cy {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            z-index: 999;
+        }
+
+        h1 {
+            opacity: 0.5;
+            font-size: 1em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="cy"></div>
+    <script src="./03-data-big-data-elements.js"></script>
+    <script src="./lib/cytoscape.min.js"></script>
+    <script src="../cytoscape-navigator.js"></script>
+    <script>
+        var cy = cytoscape({
+
+            container: document.getElementById('cy'),
+
+            elements,
+
+            style: [
+                {
+                    selector: 'node',
+                    style: {
+                        'content': 'data(id)'
+                    }
+                },
+
+                {
+                    selector: 'edge',
+                    style: {
+                        'target-arrow-shape': 'triangle'
+                    }
+                },
+
+                {
+                    selector: ':selected',
+                    style: {
+
+                    }
+                }
+            ],
+
+        })
+
+        cy.navigator({
+        // options...
+        });
+    </script>
+</body>
+
+</html>

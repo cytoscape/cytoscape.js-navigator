@@ -6,6 +6,8 @@
     , dblClickDelay: 200 // milliseconds
     , removeCustomContainer: true // destroy the container specified by user on plugin destroy
     , rerenderDelay: 500 // ms to throttle rerender updates to the panzoom for performance
+    , disableUpdateThumbnailEvents: ['pan', 'zoom'] // disable update thumbnail events
+    , disableUpdateTime: 1000, // ms to disable update thumbnail time interval when disableUpdateThumbnailEvents turn on
   };
 
   var debounce = (function(){
@@ -860,11 +862,20 @@
     this._thumbnailUpdating = true;
 
     var render = function() {
-      that._checkThumbnailSizesAndUpdate();
-      that._setupView();
-
       var $img = that.$thumbnail;
       var img = $img;
+      var isInitialImg = img.getAttribute('src')
+
+      if (isInitialImg) {
+          const isBreak = disableUpdateThumbnailEvents.some(evtType => that[evtType + 'Event'])
+
+          if (isBreak) {
+              return
+          }
+      }
+
+      that._checkThumbnailSizesAndUpdate();
+      that._setupView();
 
       var w = that.panelWidth;
       var h = that.panelHeight;
@@ -897,6 +908,24 @@
     this._onRenderHandler = throttle(render, that.options.rerenderDelay)
 
     this.cy.onRender( this._onRenderHandler )
+
+    // listen disable update thumbnail events
+    const disableUpdateThumbnailEvents = that.options.disableUpdateThumbnailEvents
+    for (var i = 0; i < disableUpdateThumbnailEvents.length; i++) {
+        this.cy.on(disableUpdateThumbnailEvents[i], that._onDisEeventHandler.bind(that, disableUpdateThumbnailEvents[i]))
+    }
+  }
+
+  , _onDisEeventHandler: function() {
+      const that = this;
+      const eventType = [].slice.call(arguments)[0]
+      clearTimeout(that[eventType + 'EventIt'])
+
+      that[eventType + 'EventIt'] = setTimeout(() => {
+          that[eventType + 'Event'] = false
+      }, that.options.disableUpdateTime);
+
+      that[eventType + 'Event'] = true
   }
 
   /****************************
